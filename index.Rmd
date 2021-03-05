@@ -1,0 +1,528 @@
+---
+title: "High-Performance Computing with R"
+author: "Derek Strong <br> dstrong[at]usc.edu <br> Research Computing Associate <br> CARC at USC"
+date: "2021-03-05"
+output:
+  ioslides_presentation:
+    widescreen: true
+    smaller: true
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Outline
+
+- What is HPC?
+- Limits of R
+- Profiling and benchmarking
+- Vectorizing code
+- Efficient memory use
+- Data I/O
+- Parallel programming
+- Example job scripts
+
+
+## What is HPC?
+
+High-performance computing (relative to desktop computers):
+
+- More computing power (cluster of compute nodes)
+- More memory (shared and distributed memory)
+- Ability to scale computations to more compute resources
+- Faster runtimes
+
+
+## Why HPC with R?
+
+- Work with big data by having access to more memory
+- Speedup runtimes with parallel programming
+
+
+## Limits of R
+
+- R can be slow (relative to compiled languages)
+- Row size is limited to 2^31 - 1 (2,147,483,647 rows)
+- R uses 1 core by default
+- R stores data in memory by default
+
+
+## General recommendations to improve performance of R code
+
+- Code first, optimize later (if needed)
+- Profile code to identify bottlenecks
+- Simplify when possible (do less)
+- Vectorize code
+- Modify-in-place (avoid duplicating data in memory)
+- Parallelize when appropriate
+- Use existing solutions
+  - vectorized functions (e.g., `colMeans()`, `ifelse()`, etc.)
+  - packages designed for HPC (e.g., `parallel`, `data.table`, `pbdMPI`, etc.)
+
+
+## Profiling and benchmarking
+
+- Aim for *fast enough* code  
+- Compute time is less expensive than human time
+
+1. Profile code to understand the execution time and memory use of each part
+2. Identify bottlenecks (i.e., parts of code that take the most time)
+3. Try to improve performance of bottlenecks by modifying code
+4. Benchmark alternative code to identify best alternative
+
+
+
+
+## Profiling
+
+A few tools:
+
+- Base R: `Rprof()`, `summaryRprof()`, and `Rprofmem()`
+- `profvis` for RStudio (uses `Rprof()` output file)
+- `proftools` (more features, better interface)
+- `profmem` for memory profiling
+- On CARC systems, download output files to view graphics locally
+- Note that C/C++/Fortran code is not profiled
+
+
+## Benchmarking
+
+A few tools:
+
+- Base R: `system.time()`
+- `bench` (more features)
+- `microbenchmark` for short-running code
+- `benchmarkme` for benchmarking hardware
+- Could also use profiling tool
+
+
+## Benchmarking example
+
+```{r}
+n <- 50000
+
+vec <- function(n) {
+  x <- integer(0)
+  for (i in 1:n) {
+    x <- c(x, i)
+  }
+  x
+}
+
+system.time(vec(n))
+
+system.time(1:n)
+```
+
+
+## Vectorizing code
+
+- Vectorize code when possible
+  - think about the whole object, not a single element of that object
+  - apply same operation to each element
+  - think matrix algebra (use optimized BLAS library)
+- Use vectorized functions that already exist
+  - these functions are typically for loops written in C/C++/Fortran
+  - easier to write and read
+- For loops in R are not necessarily slow, but often not optimized or easy to write or read
+  - `*apply()` family of functions are often used instead
+  - `purrr` package for a larger set of related functions
+  - these functions are not really vectorized though
+
+
+## Vectorizing code example
+
+```{r}
+mat <- matrix(rexp(100000000), ncol = 10000)
+
+system.time({
+  result <- numeric(nrow(mat))
+  for (i in 1:nrow(mat)) {
+    result[[i]] <- sum(mat[ , i]) / length(mat[ , i])
+  }
+})
+
+system.time(apply(mat, 2, mean))
+
+system.time(colMeans(mat))
+```
+
+
+## Avoiding object duplication
+
+- R tries not to copy objects (copy-on-modify)
+- Copying slows down runtime and uses memory
+- Functions that modify objects will typically copy object before modifying
+- R can use large amounts of memory if working with large data objects
+- Growing objects will duplicate objects
+- Pre-allocate objects
+
+
+## Copy-on-modify and modify-in-place
+
+```{r}
+a <- c(1, 2, 3, 4)
+tracemem(a)
+b <- a
+tracemem(b)
+b[[1]] <- 5
+b[[3]] <- 6
+tracemem(b)
+z <- mean(b)
+tracemem(z)
+```
+
+## When does R copy objects?
+
+- Depends on how objects are modified and functions used
+- Can be difficult to predict when copies are made
+- Use `tracemem()` and memory profiling to collect data
+
+
+## Object duplication example
+
+```{r}
+n <- 100000
+
+# Create empty vector and grow
+# creates new vector with each iteration
+system.time({
+  vec <- numeric(0)
+  for (i in 1:n) {
+    vec <- c(vec, i)
+  }
+})
+```
+
+
+## Object duplication example continued
+
+```{r}
+n <- 100000
+
+# Pre-allocate empty vector and replace values
+system.time({
+  vec <- numeric(n)
+  for (i in 1:n) {
+    vec[i] <- i
+  }
+})
+```
+
+
+## Object duplication example continued
+
+```{r}
+n <- 100000
+
+# Create vector directly
+system.time(vec <- 1:n)
+```
+
+
+## Efficient memory use
+
+- If you run out of memory:
+  - In R, error message like "cannot allocate vector"
+  - In shell, error message like "oom-kill event" (out-of-memory)
+- Avoid copying data and modify-in-place when possible
+- Remove objects from environment when no longer needed
+- Store in simpler formats (e.g., use matrix instead of data frame if possible)
+- Store data in alternative efficient formats
+
+
+## Memory-efficient data formats
+
+- Smaller size, faster data I/O and data operations
+  - minimizes memory use
+  - limited by hardware and read/write speeds
+- For data frames
+  - `data.table` package for modify-in-place operations
+  - `arrow` package for on-disk binary format (columnar format)
+  - `fst` package for on-disk binary format (efficient reading and subsetting)
+  - `disk.frame` package for on-disk binary format (multi-file fst format)
+- For other data structures
+  - `bigmemory` for big matrices
+  - `bigstatsr` for on-disk big matrices
+  - `pbdDMAT` for big matrices in MPI jobs
+  - `RNetCDF` for NetCDF files (arrays)
+  - `pbdNCDF4` for NetCDF files (arrays) in MPI jobs
+  - `hdf5r` for HDF5 files
+
+
+## Fast data I/O
+
+- Minimize I/O if possible
+- Base R functions for I/O are relatively slow
+- Packages for faster I/O (based on format)
+  - `readr` for tabular data
+  - `vroom` for tabular data
+  - `data.table` for tabular data
+  - `arrow` for binary Arrow files
+  - `fst` for binary fst files
+- On CARC systems, /project and /scratch are high-performance, parallel I/O file systems
+
+
+## Fast data processing
+
+- A few packages:
+  - `data.table`
+  - `dtplyr`
+  - `multidplyr`
+  - `bigstatsr`
+
+
+## Parallel programming
+
+- Concurrent execution of different parts of a larger computation
+- Data vs. task parallelism
+- Tightly coupled (interdependent) vs. loosely coupled (independent) computations
+- Implicit vs. explicit parallel programming
+- Key concept: speedup (decrease in runtime)
+- Parallel programming is easier with one compute node
+- Using multiple nodes requires more effort, but does not have to be difficult
+
+
+## Hardware configuration
+
+- Compute nodes have different configurations
+  - number of cores
+  - amount of memory
+- On CARC systems:
+  - [Discovery Resource Overview](https://carc.usc.edu/user-information/user-guides/high-performance-computing/discovery-resources)
+  - Enter `sinfo2` in shell to see node types
+  - 1 logical CPU = 1 core = 1 thread (`--cpus-per-task`)
+
+
+## Costs of parallelizing
+
+- Some computations are not worth parallelizing
+- Some costs to parallelizing (overhead):
+  - changing code
+  - spawning child processes
+  - copying data and environment
+  - communications
+- Speedup not proportional to number of cores (Amdahl's law)
+- Optimal number of cores
+  - depends on specific computations
+  - experiment to find
+
+
+## Implicit parallelism
+
+- No explicit programming needed (low-effort parallelism)
+- Limited to one compute node
+- Use optimized, multithreaded BLAS library
+- Use multithreaded packages
+  - Typically packages written in C/C++ and using OpenMP for multithreading
+  - Simply set number of cores to use if needed
+- Examples on CARC systems:
+  - any matrix algebra operations use multithreaded OpenBLAS library
+  - `data.table` is multithreaded via OpenMP
+
+
+## OpenBLAS
+
+- Optimized linear algebra library used for linear algebra tasks
+- Can automatically use available number of cores if needed
+- Explicitly set number of cores to use with environment variable `OMP_NUM_THREADS`
+
+
+## OpenBLAS example
+
+Using 1 core (`salloc --mem=16GB`)
+
+```
+> mat1 <- matrix(rexp(100000000), ncol = 10000)
+> mat2 <- matrix(rexp(100000000), ncol = 10000)
+> system.time(crossprod(mat1, mat2))
+   user  system elapsed
+ 87.965   0.182  88.356
+```
+
+Using 8 cores (`salloc --cpus-per-task=8 --mem=16GB`)
+
+```
+> mat1 <- matrix(rexp(100000000), ncol = 10000)
+> mat2 <- matrix(rexp(100000000), ncol = 10000)
+> system.time(crossprod(data, data2))
+   user  system elapsed
+ 92.398   7.699  12.794
+```
+
+Speedup of ~7x by using 8 cores
+
+
+## Explicit parallelism
+
+- Explicitly set up cluster of cores or nodes to parallelize over
+- Single node (shared memory) vs. multiple nodes (distributed memory)
+- Easier to set up with single node (multiple cores)
+- Approach to use depends on specific computations
+- A few packages:
+  - `parallel`
+  - `foreach`
+  - `future` and `future.batchtools`
+  - `rslurm` or `slurmR`
+  - `pbdMPI`
+  - `BiocParallel`
+- Slurm job arrays can be useful too
+
+
+## Conflicts with explicit and implicit parallelism
+
+- Be careful mixing implicit and explicit parallelism
+- Implicit parallel code may use more resources than intended
+- Turn off implicit parallelism with `export OMP_NUM_THREADS=1`
+
+
+## Some examples for using explicit parallelism
+
+- Looping over large number of objects and applying same operations
+- Running same model on many data sets
+- Running many alternative models on same data set
+- Processing and analyzing data larger than memory available on single node
+
+
+## `mclapply()` from `parallel`
+
+- parallel version of `lapply()` using forking (on Unix systems)
+- Single node, multiple cores
+- Loosely coupled (independent) tasks (no communication needed between tasks)
+- Concurrently apply same function to multiple inputs
+
+
+## `mclapply()` example
+
+```
+library(parallel)
+
+set.seed(1234)
+
+# Define number of cores based on Slurm job script
+cores <- as.numeric(Sys.getenv("SLURM_CPUS_PER_TASK")) - 1
+
+# Create large numeric data frame
+data <- data.frame(matrix(rexp(200000000), ncol = 500000))
+
+# Compute median of each data frame column
+# Run in parallel using defined number of cores
+mclapply(data, median, mc.cores = cores)
+
+# The serial analog is:
+# lapply(data, median)
+```
+
+## `lapply()` vs. `mclapply()` example
+
+Using 1 core:
+
+```
+> system.time(lapply(data, median))
+   user  system elapsed
+ 25.987   0.755  26.805
+```
+
+Using 8 cores:
+
+```
+> system.time(mclapply(data, median, mc.cores = cores))
+   user  system elapsed
+ 17.569   3.478   5.436
+```
+
+Speedup of ~5x by using 8 cores
+
+
+## Example Slurm job script for multiple cores
+
+```
+#!/bin/bash
+
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=16GB
+#SBATCH --time=1:00:00
+#SBATCH --account=<account_id>
+
+module purge
+module load gcc/8.3.0
+module load openblas/0.3.8
+module load r/4.0.0
+
+Rscript --vanilla script.R
+```
+
+
+## `pbdLapply()` from `pbdMPI`
+
+- parallel version of `lapply()` using MPI
+- Multiple nodes, multiple cores
+- Loosely coupled (independent) tasks (no substantial communication needed)
+- Concurrently apply same function to multiple inputs
+
+
+## `pbdLapply()` example
+
+```
+library(pbdMPI)
+
+# Initialize the MPI communicators
+init()
+
+comm.set.seed(seed=1234, diff=TRUE)
+
+# Create large numeric data frame
+data <- data.frame(matrix(rexp(100000000), ncol = 1000000))
+
+# Calculate median of each column
+y <- pbdLapply(data, median, pbd.mode = "spmd")
+
+comm.print(str(y), all.rank = TRUE)
+
+# Shut down the communicators and exit
+finalize()
+```
+
+## Example Slurm job script for MPI job
+
+```
+#!/bin/bash
+
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node=16
+#SBATCH --cpus-per-task=1
+#SBATCH --mem-per-cpu=3GB
+#SBATCH --time=1:00:00
+#SBATCH --account=<account_id>
+
+module purge
+module load gcc/8.3.0
+module load openblas/0.3.8
+module load openmpi/4.0.2
+module load pmix/3.1.3
+module load r/4.0.0
+
+srun --mpi=pmix_v2 -n $SLURM_NTASKS Rscript --vanilla script.R
+```
+
+## Consider using a compiled language
+
+If your R code is still not fast enough, consider interfacing to a compiled language:
+
+- R has a native interface for C and Fortran programs (relatively cumbersome)
+- Use `Rcpp` and related packages for C++ programs
+- Use `JuliaCall` package for Julia programs
+
+
+## Additional resources
+
+- [R Manuals](https://cran.r-project.org/manuals.html)
+- [CRAN Task View on High-Performance and Parallel Computing with R](https://cran.r-project.org/web/views/HighPerformanceComputing.html)  
+- [Programming with Big Data in R](https://pbdr.org/)
+- Web books
+  - [Advanced R](https://adv-r.hadley.nz/)
+  - [Efficient R Programming](https://csgillespie.github.io/efficientR/)
