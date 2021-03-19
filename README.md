@@ -17,6 +17,7 @@ Example job scripts:
 [Using R on CARC Systems](https://carc.usc.edu/user-information/user-guides/software-and-programming/r)  
 [R Project](https://www.r-project.org)  
 [R Manuals](https://cran.r-project.org/manuals.html)  
+[R Package Documentation](https://rdrr.io/)  
 [CRAN Task View on High-Performance and Parallel Computing with R](https://cran.r-project.org/web/views/HighPerformanceComputing.html)  
 [Programming with Big Data in R](https://pbdr.org/)  
 [rOpenSci](https://ropensci.org/)
