@@ -9,7 +9,7 @@
 
 
 
-  <meta name="date" content="2021-03-05" />
+  <meta name="date" content="2021-06-10" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -30,7 +30,7 @@
       // Author information
       presenters: [
             {
-        name:  'Derek Strong <br> dstrong[at]usc.edu <br> Research Computing Associate <br> CARC at USC' ,
+        name:  'Derek Strong <br> dstrong[at]usc.edu <br> <br> Center for Advanced Research Computing <br> University of Southern California <br>' ,
         company: '',
         gplus: '',
         twitter: '',
@@ -93,69 +93,7 @@ slide:not(.current) .plotly.html-widget{
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
-            pre > code.sourceCode { white-space: pre; position: relative; }
-            pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-            pre > code.sourceCode > span:empty { height: 1.2em; }
-            code.sourceCode > span { color: inherit; text-decoration: inherit; }
-            div.sourceCode { margin: 1em 0; }
-            pre.sourceCode { margin: 0; }
-            @media screen {
-            div.sourceCode { overflow: auto; }
-            }
-            @media print {
-            pre > code.sourceCode { white-space: pre-wrap; }
-            pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-            }
-            pre.numberSource code
-              { counter-reset: source-line 0; }
-            pre.numberSource code > span
-              { position: relative; left: -4em; counter-increment: source-line; }
-            pre.numberSource code > span > a:first-child::before
-              { content: counter(source-line);
-                position: relative; left: -1em; text-align: right; vertical-align: baseline;
-                border: none; display: inline-block;
-                -webkit-touch-callout: none; -webkit-user-select: none;
-                -khtml-user-select: none; -moz-user-select: none;
-                -ms-user-select: none; user-select: none;
-                padding: 0 4px; width: 4em;
-                color: #aaaaaa;
-              }
-            pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-            div.sourceCode
-              {   }
-            @media screen {
-            pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-            }
-            code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-            code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-            code span.at { color: #7d9029; } /* Attribute */
-            code span.bn { color: #40a070; } /* BaseN */
-            code span.bu { } /* BuiltIn */
-            code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-            code span.ch { color: #4070a0; } /* Char */
-            code span.cn { color: #880000; } /* Constant */
-            code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-            code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-            code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-            code span.dt { color: #902000; } /* DataType */
-            code span.dv { color: #40a070; } /* DecVal */
-            code span.er { color: #ff0000; font-weight: bold; } /* Error */
-            code span.ex { } /* Extension */
-            code span.fl { color: #40a070; } /* Float */
-            code span.fu { color: #06287e; } /* Function */
-            code span.im { } /* Import */
-            code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-            code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-            code span.op { color: #666666; } /* Operator */
-            code span.ot { color: #007020; } /* Other */
-            code span.pp { color: #bc7a00; } /* Preprocessor */
-            code span.sc { color: #4070a0; } /* SpecialChar */
-            code span.ss { color: #bb6688; } /* SpecialString */
-            code span.st { color: #4070a0; } /* String */
-            code span.va { color: #19177c; } /* Variable */
-            code span.vs { color: #4070a0; } /* VerbatimString */
-            code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-        
+            
   </style>
 
 
@@ -171,7 +109,7 @@ slide:not(.current) .plotly.html-widget{
       <h1 data-config-title><!-- populated from slide_config.json --></h1>
       
       <p data-config-presenter><!-- populated from slide_config.json --></p>
-            <p style="margin-top: 6px; margin-left: -2px;">2021-03-05</p>
+            <p style="margin-top: 6px; margin-left: -2px;">2021-06-10</p>
           </hgroup>
   </slide>
 
@@ -185,25 +123,52 @@ slide:not(.current) .plotly.html-widget{
 <li>Efficient memory use</li>
 <li>Data I/O</li>
 <li>Parallel programming</li>
-<li>Example job scripts</li>
 </ul>
 
 </article></slide><slide class=""><hgroup><h2>What is HPC?</h2></hgroup><article  class="smaller " id="what-is-hpc">
 
-<p>High-performance computing (relative to desktop computers):</p>
+<ul>
+<li>High-performance computing
 
 <ul>
+<li>Relative to desktop/laptop computers</li>
 <li>More computing power (cluster of compute nodes)</li>
 <li>More memory (shared and distributed memory)</li>
+</ul></li>
 <li>Ability to scale computations to more compute resources</li>
-<li>Faster runtimes</li>
+<li>Faster runtimes (speedup)</li>
+<li>Run multiple jobs at the same time</li>
+<li>Run jobs with long runtimes</li>
 </ul>
 
-</article></slide><slide class=""><hgroup><h2>Why HPC with R?</h2></hgroup><article  class="smaller " id="why-hpc-with-r">
+</article></slide><slide class=""><hgroup><h2>Hardware specs</h2></hgroup><article  class="smaller " id="hardware-specs">
 
 <ul>
-<li>Work with big data by having access to more memory</li>
-<li>Speedup runtimes with parallel programming</li>
+<li>A compute node has multiple cores and a certain amount of memory</li>
+<li>HPC clusters typically have different types of compute nodes
+
+<ul>
+<li>Different types of CPUs (e.g., Intel vs. AMD)</li>
+<li>Varying numbers of cores per node</li>
+<li>Varying amounts of memory per node</li>
+<li>Some nodes may also have GPUs</li>
+</ul></li>
+<li>On CARC systems, 1 logical CPU = 1 core = 1 thread (<code>--cpus-per-task</code>)</li>
+<li>Use Slurm’s <code>sinfo</code> command to view cluster and node info</li>
+<li><a href='https://carc.usc.edu/user-information/user-guides/high-performance-computing/discovery-resources' title=''>Discovery Resource Overview</a></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Using HPC resources</h2></hgroup><article  class="smaller " id="using-hpc-resources">
+
+<ul>
+<li>Requesting more resources for your job does not mean that it actually uses those resources
+
+<ul>
+<li>Maximizing cores does not necessarily lead to speedups</li>
+<li>There is an optimal number or cores depending on the computations</li>
+</ul></li>
+<li>You likely need to modify your code to make use of more cores or multiple nodes</li>
+<li>There are different methods to do this (implicit vs. explicit parallelism)</li>
 </ul>
 
 </article></slide><slide class=""><hgroup><h2>Limits of R</h2></hgroup><article  class="smaller " id="limits-of-r">
@@ -213,6 +178,7 @@ slide:not(.current) .plotly.html-widget{
 <li>Row size is limited to 2^31 - 1 (2,147,483,647 rows)</li>
 <li>R uses 1 core by default</li>
 <li>R stores data in memory by default</li>
+<li>These limits can be overcome</li>
 </ul>
 
 </article></slide><slide class=""><hgroup><h2>General recommendations to improve performance of R code</h2></hgroup><article  class="smaller " id="general-recommendations-to-improve-performance-of-r-code">
@@ -227,41 +193,64 @@ slide:not(.current) .plotly.html-widget{
 <li>Use existing solutions
 
 <ul>
-<li>vectorized functions (e.g., <code>colMeans()</code>, <code>ifelse()</code>, etc.)</li>
-<li>packages designed for HPC (e.g., <code>parallel</code>, <code>data.table</code>, <code>pbdMPI</code>, etc.)</li>
+<li>Vectorized functions (e.g., <code>colMeans()</code>, <code>ifelse()</code>, etc.)</li>
+<li>Packages designed for HPC (e.g., <code>parallel</code>, <code>data.table</code>, <code>pbdMPI</code>, etc.)</li>
 </ul></li>
+<li>Consult package and function documentation</li>
 </ul>
 
 </article></slide><slide class=""><hgroup><h2>Profiling and benchmarking</h2></hgroup><article  class="smaller " id="profiling-and-benchmarking">
 
 <ul>
-<li>Aim for <em>fast enough</em> code<br/></li>
-<li>Compute time is less expensive than human time</li>
-</ul>
+<li><p>Aim for code that is <em>fast enough</em><br/></p></li>
+<li><p>Compute time is less expensive than human time</p></li>
+<li><p>Basic workflow:</p>
 
 <ol>
 <li>Profile code to understand the execution time and memory use of each part</li>
 <li>Identify bottlenecks (i.e., parts of code that take the most time)</li>
 <li>Try to improve performance of bottlenecks by modifying code</li>
 <li>Benchmark alternative code to identify best alternative</li>
-</ol>
+</ol></li>
+</ul>
 
-</article></slide><slide class=""><hgroup><h2>Profiling</h2></hgroup><article  class="smaller " id="profiling">
-
-<p>A few tools:</p>
+</article></slide><slide class=""><hgroup><h2>Profiling R code</h2></hgroup><article  class="smaller " id="profiling-r-code">
 
 <ul>
 <li>Base R: <code>Rprof()</code>, <code>summaryRprof()</code>, and <code>Rprofmem()</code></li>
 <li><code>profvis</code> for RStudio (uses <code>Rprof()</code> output file)</li>
 <li><code>proftools</code> (more features, better interface)</li>
 <li><code>profmem</code> for memory profiling</li>
-<li>On CARC systems, download output files to view graphics locally</li>
+<li>Can be difficult to interpret</li>
 <li>Note that C/C++/Fortran code is not profiled</li>
+<li>On CARC systems, download output files to view graphics locally</li>
 </ul>
 
-</article></slide><slide class=""><hgroup><h2>Benchmarking</h2></hgroup><article  class="smaller " id="benchmarking">
+</article></slide><slide class=""><hgroup><h2>Profiling using <code>proftools</code></h2></hgroup><article  class="smaller " id="profiling-using-proftools">
 
-<p>A few tools:</p>
+<ul>
+<li>Use <code>profileExpr()</code> to profile R script</li>
+<li>Profiles line-by-line and saves output</li>
+<li>Then use other functions to summarize output:
+
+<ul>
+<li><code>srcSummary()</code></li>
+<li><code>flatProfile()</code></li>
+<li><code>hotPaths()</code></li>
+</ul></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2><code>proftools</code> example</h2></hgroup><article  class="smaller " id="proftools-example">
+
+<pre >library(proftools)
+
+srcfile &lt;- system.file(&quot;samples&quot;, &quot;bootlmEx.R&quot;, package = &quot;proftools&quot;)
+
+pd &lt;- profileExpr(source(srcfile))
+
+srcSummary(pd)</pre>
+
+</article></slide><slide class=""><hgroup><h2>Benchmarking R code</h2></hgroup><article  class="smaller " id="benchmarking-r-code">
 
 <ul>
 <li>Base R: <code>system.time()</code></li>
@@ -271,9 +260,9 @@ slide:not(.current) .plotly.html-widget{
 <li>Could also use profiling tool</li>
 </ul>
 
-</article></slide><slide class=""><hgroup><h2>Benchmarking example</h2></hgroup><article  class="smaller " id="benchmarking-example">
+</article></slide><slide class=""><hgroup><h2><code>system.time()</code> example</h2></hgroup><article  class="smaller " id="system.time-example">
 
-<pre class = 'prettyprint lang-r'>n &lt;- 50000
+<pre >n &lt;- 50000
 
 vec &lt;- function(n) {
   x &lt;- integer(0)
@@ -283,15 +272,29 @@ vec &lt;- function(n) {
   x
 }
 
-system.time(vec(n))</pre>
+system.time(vec(n))
 
-<pre >##    user  system elapsed 
-##   3.218   1.155   4.403</pre>
+system.time(1:n)</pre>
 
-<pre class = 'prettyprint lang-r'>system.time(1:n)</pre>
+</article></slide><slide class=""><hgroup><h2>Exercise 1</h2></hgroup><article  class="smaller " id="exercise-1">
 
-<pre >##    user  system elapsed 
-##       0       0       0</pre>
+<p>Setup:</p>
+
+<pre >mat &lt;- matrix(rexp(200000000), ncol = 800000)
+
+data &lt;- as.data.frame(mat)</pre>
+
+<p>Benchmark the following functions using <code>system.time()</code>:</p>
+
+<pre >for (i in seq_along(data)) mean(data[[i]])
+
+apply(data, 2, FUN = mean)
+
+sapply(data, mean)
+
+colMeans(data)
+
+colMeans(mat)</pre>
 
 </article></slide><slide class=""><hgroup><h2>Vectorizing code</h2></hgroup><article  class="smaller " id="vectorizing-code">
 
@@ -299,48 +302,24 @@ system.time(vec(n))</pre>
 <li>Vectorize code when possible
 
 <ul>
-<li>think about the whole object, not a single element of that object</li>
-<li>apply same operation to each element</li>
-<li>think matrix algebra (use optimized BLAS library)</li>
+<li>Think about the whole object, not a single element of that object</li>
+<li>Apply same operation to each element</li>
+<li>Think matrix algebra (use optimized BLAS library)</li>
 </ul></li>
 <li>Use vectorized functions that already exist
 
 <ul>
-<li>these functions are typically for loops written in C/C++/Fortran</li>
-<li>easier to write and read</li>
+<li>These functions are typically for loops written in C/C++/Fortran</li>
+<li>Easier to write and read</li>
 </ul></li>
 <li>For loops in R are not necessarily slow, but often not optimized or easy to write or read
 
 <ul>
 <li><code>*apply()</code> family of functions are often used instead</li>
-<li><code>purrr</code> package for a larger set of related functions</li>
-<li>these functions are not really vectorized though</li>
+<li>See <code>purrr</code> package for a larger set of related functions</li>
+<li>These functions are not really vectorized though</li>
 </ul></li>
 </ul>
-
-</article></slide><slide class=""><hgroup><h2>Vectorizing code example</h2></hgroup><article  class="smaller " id="vectorizing-code-example">
-
-<pre class = 'prettyprint lang-r'>mat &lt;- matrix(rexp(100000000), ncol = 10000)
-
-system.time({
-  result &lt;- numeric(nrow(mat))
-  for (i in 1:nrow(mat)) {
-    result[[i]] &lt;- sum(mat[ , i]) / length(mat[ , i])
-  }
-})</pre>
-
-<pre >##    user  system elapsed 
-##   1.012   0.670   1.690</pre>
-
-<pre class = 'prettyprint lang-r'>system.time(apply(mat, 2, mean))</pre>
-
-<pre >##    user  system elapsed 
-##   1.169   0.505   1.682</pre>
-
-<pre class = 'prettyprint lang-r'>system.time(colMeans(mat))</pre>
-
-<pre >##    user  system elapsed 
-##   0.097   0.000   0.099</pre>
 
 </article></slide><slide class=""><hgroup><h2>Avoiding object duplication</h2></hgroup><article  class="smaller " id="avoiding-object-duplication">
 
@@ -350,34 +329,20 @@ system.time({
 <li>Functions that modify objects will typically copy object before modifying</li>
 <li>R can use large amounts of memory if working with large data objects</li>
 <li>Growing objects will duplicate objects</li>
-<li>Pre-allocate objects</li>
+<li>Pre-allocate objects if possible</li>
 </ul>
 
 </article></slide><slide class=""><hgroup><h2>Copy-on-modify and modify-in-place</h2></hgroup><article  class="smaller " id="copy-on-modify-and-modify-in-place">
 
-<pre class = 'prettyprint lang-r'>a &lt;- c(1, 2, 3, 4)
-tracemem(a)</pre>
-
-<pre >## [1] &quot;&lt;0x7f96cae1b998&gt;&quot;</pre>
-
-<pre class = 'prettyprint lang-r'>b &lt;- a
-tracemem(b)</pre>
-
-<pre >## [1] &quot;&lt;0x7f96cae1b998&gt;&quot;</pre>
-
-<pre class = 'prettyprint lang-r'>b[[1]] &lt;- 5</pre>
-
-<pre >## tracemem[0x7f96cae1b998 -&gt; 0x7f96caef77f8]: eval eval withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; &lt;Anonymous&gt;</pre>
-
-<pre class = 'prettyprint lang-r'>b[[3]] &lt;- 6
-tracemem(b)</pre>
-
-<pre >## [1] &quot;&lt;0x7f96caef77f8&gt;&quot;</pre>
-
-<pre class = 'prettyprint lang-r'>z &lt;- mean(b)
+<pre >a &lt;- c(1, 2, 3, 4)
+tracemem(a)
+b &lt;- a
+tracemem(b)
+b[[1]] &lt;- 5
+b[[3]] &lt;- 6
+tracemem(b)
+z &lt;- mean(b)
 tracemem(z)</pre>
-
-<pre >## [1] &quot;&lt;0x7f96ce1e7598&gt;&quot;</pre>
 
 </article></slide><slide class=""><hgroup><h2>When does R copy objects?</h2></hgroup><article  class="smaller " id="when-does-r-copy-objects">
 
@@ -389,7 +354,7 @@ tracemem(z)</pre>
 
 </article></slide><slide class=""><hgroup><h2>Object duplication example</h2></hgroup><article  class="smaller " id="object-duplication-example">
 
-<pre class = 'prettyprint lang-r'>n &lt;- 100000
+<pre >n &lt;- 100000
 
 # Create empty vector and grow
 # creates new vector with each iteration
@@ -400,12 +365,9 @@ system.time({
   }
 })</pre>
 
-<pre >##    user  system elapsed 
-##  14.636   9.410  24.088</pre>
+</article></slide><slide class=""><hgroup><h2>Object duplication example (continued)</h2></hgroup><article  class="smaller " id="object-duplication-example-continued">
 
-</article></slide><slide class=""><hgroup><h2>Object duplication example continued</h2></hgroup><article  class="smaller " id="object-duplication-example-continued">
-
-<pre class = 'prettyprint lang-r'>n &lt;- 100000
+<pre >n &lt;- 100000
 
 # Pre-allocate empty vector and replace values
 system.time({
@@ -415,18 +377,12 @@ system.time({
   }
 })</pre>
 
-<pre >##    user  system elapsed 
-##   0.006   0.000   0.007</pre>
+</article></slide><slide class=""><hgroup><h2>Object duplication example (continued)</h2></hgroup><article  class="smaller " id="object-duplication-example-continued-1">
 
-</article></slide><slide class=""><hgroup><h2>Object duplication example continued</h2></hgroup><article  class="smaller " id="object-duplication-example-continued-1">
-
-<pre class = 'prettyprint lang-r'>n &lt;- 100000
+<pre >n &lt;- 100000
 
 # Create vector directly
 system.time(vec &lt;- 1:n)</pre>
-
-<pre >##    user  system elapsed 
-##       0       0       0</pre>
 
 </article></slide><slide class=""><hgroup><h2>Efficient memory use</h2></hgroup><article  class="smaller " id="efficient-memory-use">
 
@@ -434,8 +390,9 @@ system.time(vec &lt;- 1:n)</pre>
 <li>If you run out of memory:
 
 <ul>
-<li>In R, error message like &ldquo;cannot allocate vector&rdquo;</li>
+<li>In R session, error message like &ldquo;cannot allocate vector&rdquo;</li>
 <li>In shell, error message like &ldquo;oom-kill event&rdquo; (out-of-memory)</li>
+<li>May just need to request more memory if available</li>
 </ul></li>
 <li>Avoid copying data and modify-in-place when possible</li>
 <li>Remove objects from environment when no longer needed</li>
@@ -449,8 +406,8 @@ system.time(vec &lt;- 1:n)</pre>
 <li>Smaller size, faster data I/O and data operations
 
 <ul>
-<li>minimizes memory use</li>
-<li>limited by hardware and read/write speeds</li>
+<li>Minimizes memory use</li>
+<li>Limited by hardware and read/write speeds</li>
 </ul></li>
 <li>For data frames
 
@@ -477,7 +434,7 @@ system.time(vec &lt;- 1:n)</pre>
 <ul>
 <li>Minimize I/O if possible</li>
 <li>Base R functions for I/O are relatively slow</li>
-<li>Packages for faster I/O (based on format)
+<li>Packages for faster I/O (based on format):
 
 <ul>
 <li><code>readr</code> for tabular data</li>
@@ -486,50 +443,49 @@ system.time(vec &lt;- 1:n)</pre>
 <li><code>arrow</code> for binary Arrow files</li>
 <li><code>fst</code> for binary fst files</li>
 </ul></li>
-<li>On CARC systems, /project and /scratch are high-performance, parallel I/O file systems</li>
+<li>On CARC systems, <code>/project</code> and <code>/scratch</code> are high-performance, parallel I/O file systems</li>
 </ul>
+
+</article></slide><slide class=""><hgroup><h2>Exercise 2</h2></hgroup><article  class="smaller " id="exercise-2">
+
+<p>Setup:</p>
+
+<pre >data &lt;- data.frame(matrix(rexp(1000000), ncol = 10000))
+file &lt;- tempfile()</pre>
+
+<p>Benchmark the following functions:</p>
+
+<pre >write.csv(data, file)
+
+data.table::fwrite(data, file)
+
+read.csv(file)
+
+data.table::fread(file)</pre>
 
 </article></slide><slide class=""><hgroup><h2>Fast data processing</h2></hgroup><article  class="smaller " id="fast-data-processing">
 
 <ul>
-<li>A few packages:
+<li>Base R and Tidyverse packages are relatively slow</li>
+<li>Packages for faster data processing:
 
 <ul>
-<li><code>data.table</code></li>
-<li><code>dtplyr</code></li>
-<li><code>multidplyr</code></li>
-<li><code>bigstatsr</code></li>
+<li><code>data.table</code> in general</li>
+<li><code>dtplyr</code> for <code>dplyr</code> substitute</li>
+<li><code>multidplyr</code> for big data <code>dplyr</code> substitute (&gt; 10M obs)</li>
+<li><code>bigstatsr</code> for big matrices (larger than memory)</li>
 </ul></li>
 </ul>
 
 </article></slide><slide class=""><hgroup><h2>Parallel programming</h2></hgroup><article  class="smaller " id="parallel-programming">
 
 <ul>
-<li>Concurrent execution of different parts of a larger computation</li>
+<li>Simultaneous execution of different parts of a larger computation</li>
 <li>Data vs. task parallelism</li>
 <li>Tightly coupled (interdependent) vs. loosely coupled (independent) computations</li>
 <li>Implicit vs. explicit parallel programming</li>
+<li>Using one (multicore) compute node is easier than using multiple nodes</li>
 <li>Key concept: speedup (decrease in runtime)</li>
-<li>Parallel programming is easier with one compute node</li>
-<li>Using multiple nodes requires more effort, but does not have to be difficult</li>
-</ul>
-
-</article></slide><slide class=""><hgroup><h2>Hardware configuration</h2></hgroup><article  class="smaller " id="hardware-configuration">
-
-<ul>
-<li>Compute nodes have different configurations
-
-<ul>
-<li>number of cores</li>
-<li>amount of memory</li>
-</ul></li>
-<li>On CARC systems:
-
-<ul>
-<li><a href='https://carc.usc.edu/user-information/user-guides/high-performance-computing/discovery-resources' title=''>Discovery Resource Overview</a></li>
-<li>Enter <code>sinfo2</code> in shell to see node types</li>
-<li>1 logical CPU = 1 core = 1 thread (<code>--cpus-per-task</code>)</li>
-</ul></li>
 </ul>
 
 </article></slide><slide class=""><hgroup><h2>Costs of parallelizing</h2></hgroup><article  class="smaller " id="costs-of-parallelizing">
@@ -539,81 +495,76 @@ system.time(vec &lt;- 1:n)</pre>
 <li>Some costs to parallelizing (overhead):
 
 <ul>
-<li>changing code</li>
-<li>spawning child processes</li>
-<li>copying data and environment</li>
-<li>communications</li>
+<li>Changing code</li>
+<li>Spawning child processes</li>
+<li>Copying data and environment</li>
+<li>Communications</li>
 </ul></li>
 <li>Speedup not proportional to number of cores (Amdahl’s law)</li>
 <li>Optimal number of cores
 
 <ul>
-<li>depends on specific computations</li>
-<li>experiment to find</li>
+<li>Depends on specific computations</li>
+<li>Experiment to find</li>
 </ul></li>
 </ul>
 
 </article></slide><slide class=""><hgroup><h2>Implicit parallelism</h2></hgroup><article  class="smaller " id="implicit-parallelism">
 
 <ul>
-<li>No explicit programming needed (low-effort parallelism)</li>
-<li>Limited to one compute node</li>
-<li>Use optimized, multithreaded BLAS library</li>
-<li>Use multithreaded packages
+<li>Parallel programming details are abstracted away (low-effort parallelism)</li>
+<li>Limited to one compute node (maximize cores)</li>
+<li>Using optimized, multi-threaded BLAS library (not default R BLAS/LAPACK)
 
 <ul>
-<li>Typically packages written in C/C++ and using OpenMP for multithreading</li>
-<li>Simply set number of cores to use if needed</li>
+<li>Basic Linear Algebra Subprograms</li>
+<li>For example, OpenBLAS, Intel MKL, or AMD BLIS</li>
 </ul></li>
-<li>Examples on CARC systems:
+<li>Using multi-threaded packages
 
 <ul>
-<li>any matrix algebra operations use multithreaded OpenBLAS library</li>
-<li><code>data.table</code> is multithreaded via OpenMP</li>
+<li>Typically packages written in C/C++ and using OpenMP for multi-threading</li>
+<li>If needed, simply set number of cores to use</li>
+<li>For example, <code>data.table</code> is multi-threaded via OpenMP</li>
 </ul></li>
 </ul>
 
 </article></slide><slide class=""><hgroup><h2>OpenBLAS</h2></hgroup><article  class="smaller " id="openblas">
 
 <ul>
-<li>Optimized linear algebra library used for linear algebra tasks</li>
-<li>Can automatically use available number of cores if needed</li>
+<li>On CARC systems, R modules use multi-threaded OpenBLAS</li>
+<li>Optimized linear algebra library used for linear algebra operations</li>
+<li>Will automatically use available number of cores if needed</li>
+<li>On CARC systems, OpenBLAS modules multi-threaded via OpenMP</li>
 <li>Explicitly set number of cores to use with environment variable <code>OMP_NUM_THREADS</code></li>
 </ul>
 
-</article></slide><slide class=""><hgroup><h2>OpenBLAS example</h2></hgroup><article  class="smaller " id="openblas-example">
+</article></slide><slide class=""><hgroup><h2>Exercise 3</h2></hgroup><article  class="smaller " id="exercise-3">
 
-<p>Using 1 core (<code>salloc --mem=16GB</code>)</p>
+<p>Setup:</p>
 
-<pre >&gt; mat1 &lt;- matrix(rexp(100000000), ncol = 10000)
-&gt; mat2 &lt;- matrix(rexp(100000000), ncol = 10000)
-&gt; system.time(crossprod(mat1, mat2))
-   user  system elapsed
- 87.965   0.182  88.356</pre>
+<pre >mat &lt;- matrix(rexp(4000000), ncol = 2000)</pre>
 
-<p>Using 8 cores (<code>salloc --cpus-per-task=8 --mem=16GB</code>)</p>
+<p>Benchmark the following functions using 1 core and using 4 cores:</p>
 
-<pre >&gt; mat1 &lt;- matrix(rexp(100000000), ncol = 10000)
-&gt; mat2 &lt;- matrix(rexp(100000000), ncol = 10000)
-&gt; system.time(crossprod(data, data2))
-   user  system elapsed
- 92.398   7.699  12.794</pre>
+<pre >eigen(mat)
 
-<p>Speedup of ~7x by using 8 cores</p>
+svd(mat)</pre>
 
 </article></slide><slide class=""><hgroup><h2>Explicit parallelism</h2></hgroup><article  class="smaller " id="explicit-parallelism">
 
 <ul>
 <li>Explicitly set up cluster of cores or nodes to parallelize over</li>
 <li>Single node (shared memory) vs. multiple nodes (distributed memory)</li>
-<li>Easier to set up with single node (multiple cores)</li>
-<li>Approach to use depends on specific computations</li>
+<li>Easier to set up with single (multicore) node</li>
+<li>Different types of explicit parallelism</li>
+<li>Which one to use depends on specific computations</li>
 <li>A few packages:
 
 <ul>
 <li><code>parallel</code></li>
 <li><code>foreach</code></li>
-<li><code>future</code> and <code>future.batchtools</code></li>
+<li><code>future</code> / <code>future.batchtools</code></li>
 <li><code>rslurm</code> or <code>slurmR</code></li>
 <li><code>pbdMPI</code></li>
 <li><code>BiocParallel</code></li>
@@ -621,7 +572,7 @@ system.time(vec &lt;- 1:n)</pre>
 <li>Slurm job arrays can be useful too</li>
 </ul>
 
-</article></slide><slide class=""><hgroup><h2>Conflicts with explicit and implicit parallelism</h2></hgroup><article  class="smaller " id="conflicts-with-explicit-and-implicit-parallelism">
+</article></slide><slide class=""><hgroup><h2>Conflicts with implicit and explicit parallelism</h2></hgroup><article  class="smaller " id="conflicts-with-implicit-and-explicit-parallelism">
 
 <ul>
 <li>Be careful mixing implicit and explicit parallelism</li>
@@ -629,60 +580,127 @@ system.time(vec &lt;- 1:n)</pre>
 <li>Turn off implicit parallelism with <code>export OMP_NUM_THREADS=1</code></li>
 </ul>
 
-</article></slide><slide class=""><hgroup><h2>Some examples for using explicit parallelism</h2></hgroup><article  class="smaller " id="some-examples-for-using-explicit-parallelism">
+</article></slide><slide class=""><hgroup><h2>Some use cases for explicit parallelism</h2></hgroup><article  class="smaller " id="some-use-cases-for-explicit-parallelism">
 
 <ul>
 <li>Looping over large number of objects and applying same operations</li>
-<li>Running same model on many data sets</li>
-<li>Running many alternative models on same data set</li>
+<li>Running same model on many datasets</li>
+<li>Running many alternative models on same dataset</li>
 <li>Processing and analyzing data larger than memory available on single node</li>
 </ul>
 
-</article></slide><slide class=""><hgroup><h2><code>mclapply()</code> from <code>parallel</code></h2></hgroup><article  class="smaller " id="mclapply-from-parallel">
+</article></slide><slide class=""><hgroup><h2>Using <code>mclapply()</code> from <code>parallel</code></h2></hgroup><article  class="smaller " id="using-mclapply-from-parallel">
 
 <ul>
-<li>parallel version of <code>lapply()</code> using forking (on Unix systems)</li>
-<li>Single node, multiple cores</li>
-<li>Loosely coupled (independent) tasks (no communication needed between tasks)</li>
-<li>Concurrently apply same function to multiple inputs</li>
+<li>Parallel version of <code>lapply()</code> using forking (on Unix-like systems)</li>
+<li>For use on single node with multiple cores</li>
+<li>For loosely coupled (independent) tasks (no communication needed between tasks)</li>
+<li>Apply same function to multiple inputs simultaneously using multiple cores</li>
 </ul>
 
 </article></slide><slide class=""><hgroup><h2><code>mclapply()</code> example</h2></hgroup><article  class="smaller " id="mclapply-example">
 
 <pre >library(parallel)
 
-set.seed(1234)
+RNGkind(&quot;L&#39;Ecuyer-CMRG&quot;)
 
-# Define number of cores based on Slurm job script
 cores &lt;- as.numeric(Sys.getenv(&quot;SLURM_CPUS_PER_TASK&quot;)) - 1
 
-# Create large numeric data frame
-data &lt;- data.frame(matrix(rexp(200000000), ncol = 500000))
+datasets &lt;- mclapply(1:200, function(x) data.frame(matrix(rexp(1000000), ncol = 1000)), mc.cores = cores)
 
-# Compute median of each data frame column
-# Run in parallel using defined number of cores
-mclapply(data, median, mc.cores = cores)
+model &lt;- function(x) {
+  xnames &lt;- paste0(&quot;X&quot;, 2:1000)
+  formula &lt;- as.formula(paste(&quot;X1 ~ &quot;, paste(xnames, collapse = &quot;+&quot;)))
+  lm(formula, x)
+}
 
-# The serial analog is:
-# lapply(data, median)</pre>
+system.time(lapply(datasets, model))
 
-</article></slide><slide class=""><hgroup><h2><code>lapply()</code> vs. <code>mclapply()</code> example</h2></hgroup><article  class="smaller " id="lapply-vs.-mclapply-example">
+system.time(mclapply(datasets, model, mc.cores = cores))</pre>
 
-<p>Using 1 core:</p>
+</article></slide><slide class=""><hgroup><h2>Job script for <code>mclapply()</code> example</h2></hgroup><article  class="smaller " id="job-script-for-mclapply-example">
 
-<pre >&gt; system.time(lapply(data, median))
+<pre >#!/bin/bash
+
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=48GB
+#SBATCH --time=0:10:00
+
+module purge
+module load gcc/8.3.0
+module load openblas/0.3.8
+module load r/4.1.0
+
+export OMP_NUM_THREADS=1
+
+Rscript --vanilla multicore-test.R</pre>
+
+</article></slide><slide class=""><hgroup><h2><code>lapply()</code> vs. <code>mclapply()</code> example output</h2></hgroup><article  class="smaller " id="lapply-vs.-mclapply-example-output">
+
+<pre >system.time(lapply(datasets, model))
+
    user  system elapsed
- 25.987   0.755  26.805</pre>
-
-<p>Using 8 cores:</p>
-
-<pre >&gt; system.time(mclapply(data, median, mc.cores = cores))
+ 57.939   1.114  59.085
+ 
+system.time(mclapply(datasets, model, mc.cores = cores))
+ 
    user  system elapsed
- 17.569   3.478   5.436</pre>
+ 13.495   6.444  21.115</pre>
 
-<p>Speedup of ~5x by using 8 cores</p>
+</article></slide><slide class=""><hgroup><h2>Other methods for explicit parallelism</h2></hgroup><article  class="smaller " id="other-methods-for-explicit-parallelism">
 
-</article></slide><slide class=""><hgroup><h2>Example Slurm job script for multiple cores</h2></hgroup><article  class="smaller " id="example-slurm-job-script-for-multiple-cores">
+<ul>
+<li>Scaling to multiple nodes and using job dependencies</li>
+<li><code>pbdMPI</code> for multi-node computing
+
+<ul>
+<li>High-level interface to traditional MPI programming</li>
+<li>Also see other <a href='https://pbdr.org/' title=''>pbdR</a> packages</li>
+</ul></li>
+<li><code>future</code> / <code>future.batchtools</code> for asynchronous evaluations</li>
+<li><code>rslurm</code> or <code>slurmR</code> for submitting Slurm jobs from within R</li>
+<li><code>targets</code> for defining and running workflows</li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Using GPU acceleration</h2></hgroup><article  class="smaller " id="using-gpu-acceleration">
+
+<ul>
+<li>Typically not worth using GPUs (compared to multi-threaded BLAS)</li>
+<li>Not many well-maintained packages</li>
+<li>Mostly useful for machine learning packages:
+
+<ul>
+<li><code>torch</code></li>
+<li><code>keras</code></li>
+<li><code>tensorflow</code></li>
+</ul></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Slurm job arrays</h2></hgroup><article  class="smaller " id="slurm-job-arrays">
+
+<ul>
+<li>For submitting and managing collections of similar jobs quickly and easily</li>
+<li>Some examples:
+
+<ul>
+<li>Varying simulation or model parameters</li>
+<li>Running the same statistical models on different datasets</li>
+</ul></li>
+<li><a href='https://slurm.schedmd.com/job_array.html' title=''>https://slurm.schedmd.com/job_array.html</a></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Setting up a job array</h2></hgroup><article  class="smaller " id="setting-up-a-job-array">
+
+<ul>
+<li>Add <code>#SBATCH --array=&lt;index&gt;</code> option to job script</li>
+<li>Each job task will use the same resources requested</li>
+<li>Modify job or application script to use array index</li>
+<li>Multiple methods are possible</li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Job array example</h2></hgroup><article  class="smaller " id="job-array-example">
 
 <pre >#!/bin/bash
 
@@ -690,86 +708,97 @@ mclapply(data, median, mc.cores = cores)
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=16GB
-#SBATCH --time=1:00:00
-#SBATCH --account=&lt;account_id&gt;
+#SBATCH --time=2:00:00
+#SBATCH --array=1-3
 
 module purge
 module load gcc/8.3.0
 module load openblas/0.3.8
 module load r/4.0.0
+
+echo &quot;Task ID: $SLURM_ARRAY_TASK_ID&quot;
 
 Rscript --vanilla script.R</pre>
 
-</article></slide><slide class=""><hgroup><h2><code>pbdLapply()</code> from <code>pbdMPI</code></h2></hgroup><article  class="smaller " id="pbdlapply-from-pbdmpi">
+</article></slide><slide class=""><hgroup><h2>Job array example (continued)</h2></hgroup><article  class="smaller " id="job-array-example-continued">
+
+<pre ># R script to process and model data
+
+library(data.table)
+
+files &lt;- list.files(&quot;./data&quot;, full.names = TRUE)
+task &lt;- as.numeric(Sys.getenv(&quot;SLURM_ARRAY_TASK_ID&quot;))
+file &lt;- files[task]
+file
+
+data &lt;- fread(file)
+
+summary(data)
+
+...</pre>
+
+</article></slide><slide class=""><hgroup><h2>Job array example (continued)</h2></hgroup><article  class="smaller " id="job-array-example-continued-1">
+
+<pre >$ sbatch array.job
+Submitted batch job 3355483
+
+$ squeue -u ttrojan
+    JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+3355483_1      main array.jo  ttrojan  R       0:05      1 d05-35
+3355483_2      main array.jo  ttrojan  R       0:05      1 e16-15
+3355483_3      main array.jo  ttrojan  R       0:05      1 d18-29</pre>
+
+</article></slide><slide class=""><hgroup><h2>High-throughput computing</h2></hgroup><article  class="smaller " id="high-throughput-computing">
 
 <ul>
-<li>parallel version of <code>lapply()</code> using MPI</li>
-<li>Multiple nodes, multiple cores</li>
-<li>Loosely coupled (independent) tasks (no substantial communication needed)</li>
-<li>Concurrently apply same function to multiple inputs</li>
+<li>Lots of short-running jobs (&lt; 15 minutes runtime)
+
+<ul>
+<li>Lots of serial jobs that could be run in parallel on different cores</li>
+<li>Lots of parallel jobs that could be run sequentially or in parallel</li>
+</ul></li>
+<li>Submitting lots of jobs (&gt; 1000) negatively impacts job scheduler</li>
+<li>Pack short-running jobs into one job</li>
+<li>Use a program like <a href='https://www.tacc.utexas.edu/research-development/tacc-software/the-launcher' title=''>Launcher</a></li>
 </ul>
 
-</article></slide><slide class=""><hgroup><h2><code>pbdLapply()</code> example</h2></hgroup><article  class="smaller " id="pbdlapply-example">
+</article></slide><slide class=""><hgroup><h2>Interfacing to a compiled language</h2></hgroup><article  class="smaller " id="interfacing-to-a-compiled-language">
 
-<pre >library(pbdMPI)
-
-# Initialize the MPI communicators
-init()
-
-comm.set.seed(seed=1234, diff=TRUE)
-
-# Create large numeric data frame
-data &lt;- data.frame(matrix(rexp(100000000), ncol = 1000000))
-
-# Calculate median of each column
-y &lt;- pbdLapply(data, median, pbd.mode = &quot;spmd&quot;)
-
-comm.print(str(y), all.rank = TRUE)
-
-# Shut down the communicators and exit
-finalize()</pre>
-
-</article></slide><slide class=""><hgroup><h2>Example Slurm job script for MPI job</h2></hgroup><article  class="smaller " id="example-slurm-job-script-for-mpi-job">
-
-<pre >#!/bin/bash
-
-#SBATCH --nodes=2
-#SBATCH --ntasks-per-node=16
-#SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu=3GB
-#SBATCH --time=1:00:00
-#SBATCH --account=&lt;account_id&gt;
-
-module purge
-module load gcc/8.3.0
-module load openblas/0.3.8
-module load openmpi/4.0.2
-module load pmix/3.1.3
-module load r/4.0.0
-
-srun --mpi=pmix_v2 -n $SLURM_NTASKS Rscript --vanilla script.R</pre>
-
-</article></slide><slide class=""><hgroup><h2>Consider using a compiled language</h2></hgroup><article  class="smaller " id="consider-using-a-compiled-language">
-
-<p>If your R code is still not fast enough, consider interfacing to a compiled language:</p>
+<ul>
+<li>If your R code is still not fast enough, consider rewriting in and interfacing to a compiled language:
 
 <ul>
 <li>R has a native interface for C and Fortran programs (relatively cumbersome)</li>
-<li>Use <code>Rcpp</code> and related packages for C++ programs</li>
+<li>Use <code>Rcpp</code> / <code>RcppParallel</code> packages for C++ programs</li>
 <li>Use <code>JuliaCall</code> package for Julia programs</li>
+</ul></li>
 </ul>
 
 </article></slide><slide class=""><hgroup><h2>Additional resources</h2></hgroup><article  class="smaller " id="additional-resources">
 
 <ul>
 <li><a href='https://cran.r-project.org/manuals.html' title=''>R Manuals</a></li>
-<li><a href='https://cran.r-project.org/web/views/HighPerformanceComputing.html' title=''>CRAN Task View on High-Performance and Parallel Computing with R</a><br/></li>
+<li><a href='https://cran.r-project.org/web/views/HighPerformanceComputing.html' title=''>CRAN Task View on High-Performance and Parallel Computing with R</a></li>
+<li><a href='https://hpcran.org/' title=''>HPCRAN</a></li>
 <li><a href='https://pbdr.org/' title=''>Programming with Big Data in R</a></li>
 <li>Web books
 
 <ul>
 <li><a href='https://adv-r.hadley.nz/' title=''>Advanced R</a></li>
 <li><a href='https://csgillespie.github.io/efficientR/' title=''>Efficient R Programming</a></li>
+</ul></li>
+</ul>
+
+</article></slide><slide class=""><hgroup><h2>Getting help</h2></hgroup><article  class="smaller " id="getting-help">
+
+<ul>
+<li><a href='https://carc.usc.edu/user-information/ticket-submission' title=''>Submit a support ticket</a></li>
+<li><a href='https://hpc-discourse.usc.edu/' title=''>User Forum</a></li>
+<li>Office Hours
+
+<ul>
+<li>Every Tuesday 2:30-5pm (currently via Zoom)</li>
+<li>Register <a href='https://carc.usc.edu/news-and-events/events' title=''>here</a></li>
 </ul></li>
 </ul></article></slide>
 
