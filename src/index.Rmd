@@ -46,7 +46,7 @@ knitr::opts_chunk$set(echo = TRUE)
   - Some nodes may also have GPUs
 - On CARC systems, 1 logical CPU = 1 core = 1 thread (`--cpus-per-task`)
 - Use Slurm's `sinfo` command to view cluster and node info
-- [Discovery Resource Overview](https://carc.usc.edu/user-information/user-guides/high-performance-computing/discovery-resources)
+- [Discovery Resource Overview](https://carc.usc.edu/user-information/user-guides/hpc-basics/discovery-resources)
 
 ## Using HPC resources
 
