@@ -2,7 +2,7 @@
 
 Workshop materials for *High Performance Computing with R*.
 
-An overview of HPC topics in R programming using the CARC's HPC clusters. Covers profiling, memory usage, data I/O, and parallel programming. Assumes basic proficiency in R programming.
+An overview of HPC methods in R programming. Topics include profiling and benchmarking, vectorizing code, memory use, data I/O, and parallel programming. Assumes basic proficiency in R programming.
 
 Slides: https://uschpc.github.io/workshop-r-hpc/
 
@@ -20,7 +20,6 @@ Example job scripts:
 - [multicore.job](job-scripts/multicore.job)
 - [mpi.job](job-scripts/mpi.job)
 - [array.job](job-scripts/array.job)
-- [launcher.job](job-scripts/launcher.job)
 
 ### Additional resources
 
@@ -35,5 +34,6 @@ Example job scripts:
 
 Web books:
 
+[The R Inferno](https://www.burns-stat.com/documents/books/the-r-inferno/)  
 [Advanced R](https://adv-r.hadley.nz/)  
 [Efficient R Programming](https://csgillespie.github.io/efficientR/)
