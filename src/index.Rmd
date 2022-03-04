@@ -1,5 +1,5 @@
 ---
-title: "High Performance Computing with R"
+title: "HPC with R"
 author: Derek Strong <br> dstrong[at]usc.edu <br> <br> Center for Advanced Research
   Computing <br> University of Southern California <br>
 date: "Last updated on `r format(Sys.time(), '%Y-%m-%d')`"
@@ -40,39 +40,32 @@ style_mono_light(
 
 ## What is HPC?
 
-- High-performance computing system
+- High-performance computing
   - Relative to laptop and desktop computers
   - More processors (cluster of compute nodes)
   - More memory (shared and distributed memory)
   - High-capacity, fast-access disk storage
-  - High-speed interconnects
+  - High-speed, high-bandwidth interconnects
 - What HPC enables
   - **Scaling** computations to more compute resources
   - **Speedup** (faster execution times)
-  - **Numerous jobs** (running many jobs at the same time)
+  - **Numerous jobs/High throughput** (running many jobs at the same time)
   - **Long-running jobs** (days or weeks)
 
 ---
 
 ## Why use R on HPC systems?
 
-- Limitations of a laptop or desktop computer
-  - Data is too big to fit in memory
-  - R code takes too long to run
+- Limitations of a laptop or workstation computer
+- Space (data won't fit in memory)
+- Time (takes too long to run)
 - Optimized software stacks available
-
----
-
-## CARC HPC clusters
-
-<div style="text-align: center;">
-<img alt="CARC cyberinfrastructure" src="./images/cyberinfrastructure.png" width="700"/>
-</div>
 
 ---
 
 ## Compute node specs
 
+- Simplified computing model: `CPU <--> RAM <--> Disk storage`
 - A compute node (individual computer) has three main components
   - Processor cores (logical CPUs)
   - Memory
@@ -80,13 +73,13 @@ style_mono_light(
 - Typically HPC nodes have NUMA architecture (coupled CPU/memory domains)
 - HPC clusters may have a mix of different compute nodes
   - Different types of CPUs (e.g., Intel vs. AMD)
-  - Varying numbers of cores per node
-  - Varying amounts of memory per node
+  - Varying numbers of **cores per node** (time)
+  - Varying amounts of **memory per node** (space)
   - Some nodes may also have GPUs
-- [Discovery Resource Overview](https://carc.usc.edu/user-information/user-guides/hpc-basics/discovery-resources)
-- Use Slurm's `sinfo` command to view cluster and node info
-- On CARC systems, 1 logical CPU = 1 core = 1 thread (`--cpus-per-task`)
-- See node details with: `module load usc hwloc && lstopo`
+- On CARC systems
+  - Use `nodeinfo` command to display cluster partition and node info
+  - 1 logical CPU = 1 core = 1 thread (`--cpus-per-task`)
+  - See more node details with: `module load usc hwloc && lstopo`
 
 ---
 
@@ -129,7 +122,7 @@ Example: 2 processor sockets, 8 cores each, 32 GB of memory each (NUMA architect
   - Clock speed (aka frequency)
   - Local memory cache size
 - Simply running jobs on a better CPU will reduce execution time
-- See CPU specs on a node with: `lscpu`
+- Use `lscpu` to display CPU specs on a node
 
 ---
 
@@ -163,7 +156,7 @@ Example: 2 processor sockets, 8 cores each, 32 GB of memory each (NUMA architect
   - But easier to program
 - R uses a single core by default
 - R stores objects in memory by default
-- Maximum length of a vector is 2^31 - 1 (2,147,483,647)
+- Maximum length of a vector is 2^31 - 1 (2,147,483,647) (32-bit integer)
 - **These limitations can be overcome**
 
 ---
@@ -514,6 +507,7 @@ system.time(svd(mat))
 - Be careful mixing implicit and explicit parallelism
 - Implicit parallel code may use more resources than intended
 - Turn off implicit parallelism with `export OMP_NUM_THREADS=1`
+- Or use `openblasctl::openblas_set_num_threads(1)`
 
 ---
 
@@ -539,7 +533,9 @@ system.time(svd(mat))
 
 ## Using mclapply() from parallel
 
-- Parallel version of `lapply()` using forking (Linux or macOS)
+- Parallel version of `lapply()` using forking
+  - Works on Linux or macOS
+  - Will only use 1 core on Windows
 - Forking is faster than making socket clusters
 - Use on a single node with multiple cores
 - For loosely coupled (independent) tasks (no communication needed between tasks)
@@ -584,17 +580,88 @@ system.time(mclapply(1:trials, model, mc.cores = cores))
 #SBATCH --mem=0
 #SBATCH --time=0:20:00
 #SBATCH --partition=debug
-#SBATCH --account=<account_id>
+#SBATCH --account=<project_id>
 
 module purge
-module load gcc/8.3.0
-module load openblas/0.3.8
-module load r/4.1.0
+module load gcc/11.2.0
+module load openblas/0.3.18
+module load r/4.1.2
 
 export OMP_NUM_THREADS=1
 
-Rscript --vanilla multicore-test.R
+Rscript multicore-test.R
 ```
+
+---
+
+## Using pbdLapply() from pbdMPI
+
+- Parallel version of `lapply()` using MPI communicators
+- When scaling to multiple nodes
+- For loosely coupled (independent) tasks
+- Apply same function to multiple inputs simultaneously using multiple cores on multiple nodes
+
+---
+
+## pbdLapply() example
+
+```{r, eval = FALSE}
+library(pbdMPI)
+
+init()
+
+trials <- 400000
+
+data <- iris[iris$Species != "setosa", c(1, 5)]
+data$Species <- factor(data$Species)
+
+model <- function(i, samp = data) {
+  ind <- sample(nrow(samp), nrow(samp), replace = TRUE)
+  results <- glm(samp[ind, 2] ~ samp[ind, 1], family = binomial(link = "logit"))
+  coef(results)
+}
+
+coefs <- pbdLapply(1:trials, model, pbd.mode = "spmd")
+
+comm.print(coefs[[1]])
+
+finalize()
+```
+
+---
+
+## Job script for pbdLapply() example
+
+```{sh, eval = FALSE}
+#!/bin/bash
+
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node=16
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=0
+#SBATCH --time=0:10:00
+#SBATCH --partition=debug
+#SBATCH --account=<account_id>
+
+module purge
+module load gcc/11.2.0
+module load openblas/0.3.18
+module load openmpi/4.1.1
+module load pmix/3.2.1
+module load r/4.1.2
+
+export OMP_NUM_THREADS=1
+
+srun --mpi=pmix_v2 -n $SLURM_NTASKS Rscript mpi-test.R
+```
+
+---
+
+## Creating workflows with targets
+
+- Workflows define a set of steps (R scripts) to achieve some outcome (analysis results)
+- Some of these steps are indepedent and can be run simultaneously
+- Other steps are dependent on previous steps
 
 ---
 
@@ -637,13 +704,13 @@ Rscript --vanilla multicore-test.R
 #SBATCH --array=1-3
 
 module purge
-module load gcc/8.3.0
-module load openblas/0.3.8
-module load r/4.0.0
+module load gcc/11.2.0
+module load openblas/0.3.18
+module load r/4.1.2
 
 echo "Task ID: $SLURM_ARRAY_TASK_ID"
 
-Rscript --vanilla script.R
+Rscript script.R
 ```
 
 ---
@@ -696,6 +763,7 @@ summary(data)
 - Use `Rcpp` family of packages for interface for C++ programs
 - Which language to use depends on the data types, computations, etc.
 
+
 ---
 
 ## Additional resources
@@ -704,6 +772,7 @@ summary(data)
 - [CRAN Task View on High-Performance and Parallel Computing with R](https://cran.r-project.org/web/views/HighPerformanceComputing.html)
 - [HPCRAN](https://hpcran.org/)
 - [Programming with Big Data in R](https://pbdr.org/)
+- [Fastverse](https://sebkrantz.github.io/fastverse/)
 - Web books
   - [The R Inferno](https://www.burns-stat.com/documents/books/the-r-inferno/)
   - [Advanced R](https://adv-r.hadley.nz/)
