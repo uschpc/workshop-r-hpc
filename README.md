@@ -1,6 +1,6 @@
 # HPC with R
 
-Workshop materials for *High Performance Computing with R*.
+Workshop materials for *HPC with R*.
 
 An overview of HPC methods in R programming. Topics include profiling and benchmarking, vectorizing code, memory use, data I/O, and parallel programming. Assumes basic proficiency in R programming.
 
@@ -14,6 +14,8 @@ Learning objectives:
 - Identify HPC-oriented R packages
 - Use R on CARC systems
 
+[Using R on CARC systems](https://www.carc.usc.edu/user-information/user-guides/software-and-programming/r)
+
 Example job scripts:
 
 - [serial.job](job-scripts/serial.job)
@@ -23,13 +25,13 @@ Example job scripts:
 
 ### Additional resources
 
-[Using R on CARC systems](https://carc.usc.edu/user-information/user-guides/software-and-programming/r)  
 [R Project](https://www.r-project.org)  
 [R Manuals](https://cran.r-project.org/manuals.html)  
 [R package documentation](https://rdrr.io)  
 [CRAN Task View on High-Performance and Parallel Computing with R](https://cran.r-project.org/web/views/HighPerformanceComputing.html)  
 [HPCRAN](https://hpcran.org/)  
 [Programming with Big Data in R](https://pbdr.org/)  
+[Fastverse](https://sebkrantz.github.io/fastverse/)  
 [rOpenSci](https://ropensci.org/)
 
 Web books:
