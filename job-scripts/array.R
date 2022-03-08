@@ -1,4 +1,4 @@
-# R script for job array
+# R script to process data (job array)
 
 library(data.table)
 
