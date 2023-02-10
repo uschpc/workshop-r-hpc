@@ -1,19 +1,18 @@
 #!/bin/bash
 
+#SBATCH --account=<project_id>
+#SBATCH --partition=main
 #SBATCH --nodes=2
 #SBATCH --ntasks-per-node=16
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=0
 #SBATCH --time=1:00:00
-#SBATCH --partition=debug
-#SBATCH --account=<project_id>
 
 module purge
-module load gcc/11.2.0
-module load openblas/0.3.18
-module load openmpi/4.1.1
-module load pmix/3.2.1
-module load r/4.1.2
+module load gcc/11.3.0
+module load openblas/0.3.20
+module load openmpi/4.1.4
+module load r/4.2.1
 
 export OMP_NUM_THREADS=1
 
