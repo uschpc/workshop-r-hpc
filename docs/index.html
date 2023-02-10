@@ -4,16 +4,22 @@
     <title>HPC with R</title>
     <meta charset="utf-8" />
     <meta name="author" content="Derek Strong   dstrong[at]usc.edu     Center for Advanced Research Computing   University of Southern California  " />
-    <script src="index_files/header-attrs-2.11/header-attrs.js"></script>
+    <script src="index_files/header-attrs-2.14/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
 class: left, top, title-slide
 
+.title[
 # HPC with R
+]
+.author[
 ### Derek Strong <br> dstrong[at]usc.edu <br> <br> Center for Advanced Research Computing <br> University of Southern California <br>
-### Last updated on 2022-03-04
+]
+.date[
+### Last updated on 2023-02-10
+]
 
 ---
 
@@ -44,14 +50,14 @@ class: left, top, title-slide
   - High-capacity, fast-access disk storage
   - High-speed, high-bandwidth interconnects
 - What HPC enables
-  - **Scaling** computations to more compute resources
-  - **Speedup** (faster execution times)
-  - **Numerous jobs/High throughput** (running many jobs at the same time)
-  - **Long-running jobs** (days or weeks)
+  - **Scaling** (using more compute resources)
+  - **Speedup** (faster run times)
+  - **Throughput** (running many jobs at the same time)
+  - **Duration** (running jobs for days or weeks)
 
 ---
 
-## Why use R on HPC systems?
+## Why use R on HPC clusters?
 
 - Limitations of a laptop or workstation computer
 - Space (data won't fit in memory)
@@ -73,10 +79,10 @@ class: left, top, title-slide
   - Varying numbers of **cores per node** (time)
   - Varying amounts of **memory per node** (space)
   - Some nodes may also have GPUs
-- On CARC systems
-  - Use `nodeinfo` command to display cluster partition and node info
+- On CARC HPC clusters
+  - Use `nodeinfo` command to display cluster partition and node status
   - 1 logical CPU = 1 core = 1 thread (`--cpus-per-task`)
-  - See more node details with: `module load usc hwloc &amp;&amp; lstopo`
+  - See more node details with: `module load gcc/11.3.0 hwloc &amp;&amp; lstopo`
 
 ---
 
@@ -115,10 +121,10 @@ Example: 2 processor sockets, 8 cores each, 32 GB of memory each (NUMA architect
 - Different CPU models have different capabilities and features
   - Instruction set architectures (e.g., x86-64, ARM64, etc.)
   - Microarchitecture designs (e.g., Intel Cascade Lake, AMD Zen 3, etc.)
-  - Vector extensions (e.g., SSE4.2, AVX2, AVX-512, etc.)
+  - Vector extensions (e.g., AVX, AVX2, AVX-512, etc.)
   - Clock speed (aka frequency)
   - Local memory cache size
-- Simply running jobs on a better CPU will reduce execution time
+- Simply running jobs on a better CPU will reduce run time
 - Use `lscpu` to display CPU specs on a node
 
 ---
@@ -177,7 +183,7 @@ Example: 2 processor sockets, 8 cores each, 32 GB of memory each (NUMA architect
 - Programmer time is more expensive than compute time
 - Basic profiling workflow:
 
-1. Profile code to understand execution time and memory use
+1. Profile code to understand run time and memory use
 2. Identify bottlenecks (i.e., parts of code that take the most time)
 3. Try to improve performance of bottlenecks by modifying code
 4. Benchmark alternative code to identify best alternative
@@ -193,7 +199,7 @@ Example: 2 processor sockets, 8 cores each, 32 GB of memory each (NUMA architect
 - `pbdPROF`, `pbdPAPI`, and `hpcvis` for MPI and low-level profiling
 - Profiling output can be difficult to interpret
 - Note that C/C++/Fortran code is not profiled (except with `pbdPAPI`)
-- On CARC systems, download output files to view graphics locally
+- Use [CARC OnDemand](https://ondemand.carc.usc.edu) apps to view graphics
 
 ---
 
@@ -302,7 +308,7 @@ system.time(test2 &lt;- vec * 3)
 ## Avoiding object duplication
 
 - R tries not to copy objects (copy-on-modify)
-- Copying slows down execution time and uses memory
+- Copying slows down run time and uses memory
 - Functions that modify objects will typically copy objects before modifying
 - Working with large data objects can lead to large memory use because of this
 - Growing objects will duplicate objects in memory
@@ -406,9 +412,10 @@ system.time(vec &lt;- 1:n)
   - `readr` for tabular data (v2.0.0+ based on `vroom`)
   - `data.table` for tabular data
   - `arrow` for binary Arrow files
-  - `fst` for binary fst files
+  - `fst` for binary fst files (data frames)
+  - `qs` for binary qs files
 - Minimize I/O when possible to improve performance
-- On CARC systems, `/project`, `/scratch`, and `/scratch2` are high-performance, parallel I/O file systems
+- On CARC HPC clusters, `/project` and `/scratch1` are high-performance, parallel I/O file systems
 
 ---
 
@@ -417,7 +424,9 @@ system.time(vec &lt;- 1:n)
 - Base R and `tidyverse` packages are relatively slow
 - For faster data processing
   - `data.table` in general
-  - `dtplyr`  for drop-in `dplyr` substitute
+  - `dtplyr` for drop-in `dplyr` substitute
+  - `tidytable` for tidy data manipulation
+  - `tidyfst` for tidy data manipulation
   - `multidplyr` for big data `dplyr` substitute (&gt; 10M obs)
   - `bigstatsr` for big matrices (larger than memory)
 
@@ -431,7 +440,7 @@ system.time(vec &lt;- 1:n)
 - Implicit vs. explicit parallel programming
 - Using one (multicore) compute node is easier than using multiple nodes
 - **Scaling** computation to more processors (cores)
-- Focus on **speedup** (decrease in execution time)
+- Focus on **speedup** (decrease in run time)
 
 ---
 
@@ -466,10 +475,11 @@ system.time(vec &lt;- 1:n)
 
 ## Optimized BLAS library
 
-- On CARC systems, R modules use multi-threaded OpenBLAS
+- On CARC HPC clusters, R modules use multi-threaded OpenBLAS
 - Optimized linear algebra library used for linear algebra operations
 - Will automatically use available number of cores if needed
-- On CARC systems, OpenBLAS modules are multi-threaded via OpenMP
+- On CARC HPC clusters, OpenBLAS modules are multi-threaded via OpenMP
+- Also built with dynamic CPU architecture optimizations
 - Explicitly set number of cores to use with environment variable `OMP_NUM_THREADS`
 - Or use `openblasctl::openblas_set_num_threads()`
 
@@ -496,6 +506,22 @@ system.time(svd(mat))
 
 ---
 
+## data.table example
+
+
+```r
+library(data.table)
+
+getDTthreads()
+
+setDTthreads(16)
+
+threads &lt;- as.numeric(Sys.getenv("SLURM_CPUS_PER_TASK"))
+setDTthreads(threads)
+```
+
+---
+
 ## Explicit parallelism
 
 - Explicitly set up cluster of cores or nodes to parallelize over
@@ -510,7 +536,7 @@ system.time(svd(mat))
 
 - Be careful mixing implicit and explicit parallelism
 - Implicit parallel code may use more resources than intended
-- Turn off implicit parallelism with `export OMP_NUM_THREADS=1`
+- Turn off implicit OpenBLAS parallelism with `export OMP_NUM_THREADS=1`
 - Or use `openblasctl::openblas_set_num_threads(1)`
 
 ---
@@ -580,18 +606,18 @@ system.time(mclapply(1:trials, model, mc.cores = cores))
 ```sh
 #!/bin/bash
 
+#SBATCH --account=&lt;project_id&gt;
+#SBATCH --partition=main
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=0
-#SBATCH --time=0:20:00
-#SBATCH --partition=debug
-#SBATCH --account=&lt;project_id&gt;
+#SBATCH --time=1:00:00
 
 module purge
-module load gcc/11.2.0
-module load openblas/0.3.18
-module load r/4.1.2
+module load gcc/11.3.0
+module load openblas/0.3.20
+module load r/4.2.1
 
 export OMP_NUM_THREADS=1
 
@@ -613,6 +639,8 @@ Rscript multicore-test.R
 
 
 ```r
+# R multinode test (bootstrapping a GLM)
+
 library(pbdMPI)
 
 init()
@@ -643,24 +671,23 @@ finalize()
 ```sh
 #!/bin/bash
 
+#SBATCH --account=&lt;project_id&gt;
+#SBATCH --partition=main
 #SBATCH --nodes=2
 #SBATCH --ntasks-per-node=16
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=0
-#SBATCH --time=0:10:00
-#SBATCH --partition=debug
-#SBATCH --account=&lt;account_id&gt;
+#SBATCH --time=1:00:00
 
 module purge
-module load gcc/11.2.0
-module load openblas/0.3.18
-module load openmpi/4.1.1
-module load pmix/3.2.1
-module load r/4.1.2
+module load gcc/11.3.0
+module load openblas/0.3.20
+module load openmpi/4.1.4
+module load r/4.2.1
 
 export OMP_NUM_THREADS=1
 
-srun --mpi=pmix_v2 -n $SLURM_NTASKS Rscript mpi-test.R
+srun --mpi=pmix_v2 -n $SLURM_NTASKS Rscript script.R
 ```
 
 ---
@@ -690,6 +717,7 @@ srun --mpi=pmix_v2 -n $SLURM_NTASKS Rscript mpi-test.R
 - For submitting and managing collections of similar jobs quickly and easily
 - Some use cases
   - Varying simulation or model parameters
+  - Running the same processing steps on different datasets
   - Running the same models on different datasets
 - Setting up a job array
   - Add `#SBATCH --array=&lt;index&gt;` option to job script
@@ -705,19 +733,21 @@ srun --mpi=pmix_v2 -n $SLURM_NTASKS Rscript mpi-test.R
 ```sh
 #!/bin/bash
 
+#SBATCH --account=&lt;project_id&gt;
+#SBATCH --partition=debug
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=16GB
-#SBATCH --time=2:00:00
+#SBATCH --time=1:00:00
 #SBATCH --array=1-3
 
 module purge
-module load gcc/11.2.0
-module load openblas/0.3.18
-module load r/4.1.2
+module load gcc/11.3.0
+module load openblas/0.3.20
+module load r/4.2.1
 
-echo "Task ID: $SLURM_ARRAY_TASK_ID"
+printf "%s\n" "Task ID: $SLURM_ARRAY_TASK_ID"
 
 Rscript script.R
 ```
@@ -728,7 +758,7 @@ Rscript script.R
 
 
 ```r
-# R script to process and model data
+# R script to process data (job array)
 
 library(data.table)
 
@@ -744,20 +774,20 @@ summary(data)
 
 ---
 
-## High-throughput computing
+## Many-task computing
 
 - Lots of short-running jobs (&lt; 15 minutes)
   - Lots of serial jobs that could be run in parallel on different cores
   - Lots of parallel jobs that could be run sequentially or in parallel
 - Submitting lots of jobs (&gt; 1000) negatively impacts job scheduler
 - Pack short-running jobs into one job
-- Use a program like [Launcher](https://carc.usc.edu/user-information/user-guides/software-and-programming/launcher)
+- Use a program like [Launcher](https://www.carc.usc.edu/user-information/user-guides/software-and-programming/launcher)
 
 ---
 
 ## Using GPU acceleration
 
-- Typically not worth using GPUs (compared to multi-threaded BLAS)
+- May not be worth using GPUs (compared to multi-threaded BLAS)
 - Not many well-maintained packages
 - Mostly useful for machine learning packages
   - `torch`
@@ -773,16 +803,19 @@ summary(data)
 - Use `Rcpp` family of packages for interface for C++ programs
 - Which language to use depends on the data types, computations, etc.
 
-
 ---
 
 ## Additional resources
 
+- [R Project](https://www.r-project.org)
 - [R Manuals](https://cran.r-project.org/manuals.html)
+- [R package documentation](https://rdrr.io)
 - [CRAN Task View on High-Performance and Parallel Computing with R](https://cran.r-project.org/web/views/HighPerformanceComputing.html)
 - [HPCRAN](https://hpcran.org/)
 - [Programming with Big Data in R](https://pbdr.org/)
-- [Fastverse](https://sebkrantz.github.io/fastverse/)
+- [Fastverse](https://fastverse.github.io/fastverse/)
+- [Futureverse](https://www.futureverse.org/)
+- [rOpenSci](https://ropensci.org/)
 - Web books
   - [The R Inferno](https://www.burns-stat.com/documents/books/the-r-inferno/)
   - [Advanced R](https://adv-r.hadley.nz/)
@@ -792,11 +825,13 @@ summary(data)
 
 ## CARC support
 
-- [Submit a support ticket](https://carc.usc.edu/user-information/ticket-submission)
+- [Using R on CARC HPC clusters](https://www.carc.usc.edu/user-information/user-guides/software-and-programming/r)
+- [R package installation guide](https://hpc-discourse.usc.edu/t/r-package-installation-guide/653)
+- [Submit a support ticket](https://www.carc.usc.edu/user-information/ticket-submission)
 - [User Forum](https://hpc-discourse.usc.edu/)
 - Office Hours
   - Every Tuesday 2:30-5pm
-  - Register [here](https://carc.usc.edu/news-and-events/events)
+  - Register [here](https://www.carc.usc.edu/news-and-events/events)
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
@@ -842,6 +877,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable
