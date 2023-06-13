@@ -4,7 +4,7 @@
     <title>HPC with R</title>
     <meta charset="utf-8" />
     <meta name="author" content="Derek Strong   dstrong[at]usc.edu     Center for Advanced Research Computing   University of Southern California  " />
-    <script src="index_files/header-attrs-2.14/header-attrs.js"></script>
+    <script src="index_files/header-attrs-2.22/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -18,7 +18,7 @@ class: left, top, title-slide
 ### Derek Strong <br> dstrong[at]usc.edu <br> <br> Center for Advanced Research Computing <br> University of Southern California <br>
 ]
 .date[
-### Last updated on 2023-02-10
+### Last updated on 2023-06-13
 ]
 
 ---
@@ -44,36 +44,58 @@ class: left, top, title-slide
 ## What is HPC?
 
 - High-performance computing
-  - Relative to laptop and desktop computers
-  - More processors (cluster of compute nodes)
-  - More memory (shared and distributed memory)
-  - High-capacity, fast-access disk storage
-  - High-speed, high-bandwidth interconnects
-- What HPC enables
-  - **Scaling** (using more compute resources)
-  - **Speedup** (faster run times)
-  - **Throughput** (running many jobs at the same time)
-  - **Duration** (running jobs for days or weeks)
+- Relative to laptop and desktop computers
+- More processors (cluster of compute nodes)
+- More memory (shared and distributed memory)
+- High-capacity, fast-access disk storage
+- High-speed, high-bandwidth networks
+
+---
+
+## What does HPC enable?
+
+- **Scaling** (using more compute resources)
+- **Speedup** (faster run times)
+- **Throughput** (running many jobs at the same time)
+- **Duration** (running jobs for days or weeks)
 
 ---
 
 ## Why use R on HPC clusters?
 
 - Limitations of a laptop or workstation computer
-- Space (data won't fit in memory)
+- Space (data does not fit in memory)
 - Time (takes too long to run)
 - Optimized software stacks available
 
 ---
 
+## Simplified computing model
+
+
+```sh
+CPU &lt;--&gt; RAM &lt;--&gt; Storage
+```
+
+- A compute node (individual computer) has four main components
+  - Central Processing Unit (CPU with multiple cores/logical CPUs)
+  - Random Access Memory (RAM)
+  - I/O buses
+  - Storage drives (direct-attached and/or network-attached storage)
+
+---
+
+## Computing constraints
+
+- CPU cores = CPU-bound jobs
+- Memory = Memory-bound jobs
+- I/O speed = I/O-bound jobs
+- Network speed = Network-bound jobs
+
+---
+
 ## Compute node specs
 
-- Simplified computing model: `CPU &lt;--&gt; RAM &lt;--&gt; Disk storage`
-- A compute node (individual computer) has three main components
-  - Processor cores (logical CPUs)
-  - Memory
-  - I/O buses
-- Typically HPC nodes have NUMA architecture (coupled CPU/memory domains)
 - HPC clusters may have a mix of different compute nodes
   - Different types of CPUs (e.g., Intel vs. AMD)
   - Varying numbers of **cores per node** (time)
@@ -86,59 +108,16 @@ class: left, top, title-slide
 
 ---
 
-## Compute node layout
-
-Example: 2 processor sockets, 8 cores each, 32 GB of memory each (NUMA architecture)
-
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│ Compute node (64GB of memory total)                                    │
-│ ┌────────────────────────────────────────────────────────────────────┐ │
-│ │ Socket/NUMA node #0 (32 GB of memory)                              │ │
-│ │ ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐ │ │
-│ │ │ Core #0     │  │ Core #1     │  │ Core #2     │  │ Core #3     │ │ │
-│ │ └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘ │ │
-│ │ ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐ │ │
-│ │ │ Core #4     │  │ Core #5     │  │ Core #6     │  │ Core #7     │ │ │
-│ │ └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘ │ │
-│ └────────────────────────────────────────────────────────────────────┘ │
-│ ┌────────────────────────────────────────────────────────────────────┐ │
-│ │ Socket/NUMA node #1 (32 GB of memory)                              │ │
-│ │ ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐ │ │
-│ │ │ Core #0     │  │ Core #1     │  │ Core #2     │  │ Core #3     │ │ │
-│ │ └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘ │ │
-│ │ ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐ │ │
-│ │ │ Core #4     │  │ Core #5     │  │ Core #6     │  │ Core #7     │ │ │
-│ │ └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘ │ │
-│ └────────────────────────────────────────────────────────────────────┘ │
-└────────────────────────────────────────────────────────────────────────┘
-```
-
----
-
 ## CPU specs
 
 - Different CPU models have different capabilities and features
   - Instruction set architectures (e.g., x86-64, ARM64, etc.)
-  - Microarchitecture designs (e.g., Intel Cascade Lake, AMD Zen 3, etc.)
+  - Microarchitecture designs (e.g., AMD Zen 3, Intel Cascade Lake, etc.)
   - Vector extensions (e.g., AVX, AVX2, AVX-512, etc.)
   - Clock speed (aka frequency)
   - Local memory cache size
-- Simply running jobs on a better CPU will reduce run time
+- Simply running jobs on a better CPU will typically reduce run time
 - Use `lscpu` to display CPU specs on a node
-
----
-
-## Compiler optimizations
-
-- R is an interpreted language, but mostly written in compiled languages (C/C++/Fortran)
-- Many R functions and packages are actually interfaces to compiled programs
-- Compiled programs can be optimized based on CPU architectures
-- Compiler optimization flags can be used to improve performance of some R packages
-  - Primarily for installing packages on Linux
-  - Specify optimization flags in `~/.R/Makevars`
-  - If targeting a specific CPU type, the program will only run on that CPU type
-  - Examples: `data.table`, `RStan`
 
 ---
 
@@ -155,12 +134,25 @@ Example: 2 processor sockets, 8 cores each, 32 GB of memory each (NUMA architect
 ## Limitations of R
 
 - R is an interpreted language
-  - Can be slow relative to compiled languages
+  - Can be slow relative to compiled languages (C/C++/Fortran)
   - But easier to program
 - R uses a single core by default
 - R stores objects in memory by default
 - Maximum length of a vector is 2^31 - 1 (2,147,483,647) (32-bit integer)
 - **These limitations can be overcome**
+
+---
+
+## Software optimization
+
+- R itself is mostly written in compiled languages (C/C++/Fortran)
+- Many R functions and packages are actually interfaces to compiled programs
+- Compiled programs can be optimized based on CPU architectures
+- Compiler optimization flags can be used to improve performance of R and some R packages
+  - Primarily for installing packages on Linux from source
+  - Specify optimization flags in `~/.R/Makevars`
+  - If targeting a specific CPU type, the program will only run on that CPU type
+  - Examples: `data.table`, `RStan`
 
 ---
 
@@ -393,7 +385,6 @@ system.time(vec &lt;- 1:n)
   - `data.table` package for modify-in-place operations
   - `arrow` package for on-disk binary format (columnar format)
   - `fst` package for on-disk binary format (efficient reading and subsetting)
-  - `disk.frame` package for on-disk binary format (multi-file fst format)
 - For other data structures
   - `bigmemory` for big matrices
   - `bigstatsr` for on-disk big matrices
@@ -429,6 +420,18 @@ system.time(vec &lt;- 1:n)
   - `tidyfst` for tidy data manipulation
   - `multidplyr` for big data `dplyr` substitute (&gt; 10M obs)
   - `bigstatsr` for big matrices (larger than memory)
+  - `collapse` for data transformation and exploration
+
+---
+
+## Improving performance of serial (single-core) jobs
+
+- Use optimized software (e.g., OpenBLAS, data.table, etc.)
+- Use vectorized functions
+- Modify-in-place (avoid duplicating data in memory)
+- Use a better CPU
+  - Higher frequency
+  - Larger cache sizes
 
 ---
 
@@ -452,6 +455,7 @@ system.time(vec &lt;- 1:n)
   - Spawning child processes
   - Copying data and environment
   - Communications
+  - Load balancing
 - Speedup not proportional to number of cores (Amdahl's law)
 - Optimal number of cores
   - Depends on specific computations
@@ -463,8 +467,9 @@ system.time(vec &lt;- 1:n)
 
 - Parallel programming details are abstracted away (low-effort parallelism)
 - Limited to one compute node (maximize cores)
-- Using optimized, multi-threaded BLAS library (not default R BLAS/LAPACK)
-  - Basic Linear Algebra Subprograms
+- Using optimized, multi-threaded BLAS/LAPACK library (not default reference)
+  - BLAS = Basic Linear Algebra Subprograms
+  - LAPACK = Linear Algebra Package
   - For example, OpenBLAS, Intel MKL, or AMD BLIS
 - Using multi-threaded packages
   - Typically packages written in C/C++ and using OpenMP for multi-threading
@@ -593,9 +598,7 @@ model &lt;- function(i, samp = data) {
   coef(results)
 }
 
-system.time(lapply(1:trials, model))
-
-system.time(mclapply(1:trials, model, mc.cores = cores))
+coefs &lt;- mclapply(1:trials, model, mc.cores = cores)
 ```
 
 ---
@@ -610,42 +613,46 @@ system.time(mclapply(1:trials, model, mc.cores = cores))
 #SBATCH --partition=main
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=0
-#SBATCH --time=1:00:00
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=2G
+#SBATCH --time=5:00
 
 module purge
 module load gcc/11.3.0
 module load openblas/0.3.20
-module load r/4.2.1
+module load r/4.3.0
 
 export OMP_NUM_THREADS=1
 
-Rscript multicore-test.R
+Rscript multicore.R
 ```
 
 ---
 
-## Using pbdLapply() from pbdMPI
+## Parallel with the futureverse
 
-- Parallel version of `lapply()` using MPI communicators
-- When scaling to multiple nodes
-- For loosely coupled (independent) tasks
-- Apply same function to multiple inputs simultaneously using multiple cores on multiple nodes
+- A unified parallelization framework for R
+- Abstracts away the technical aspects of parallel processing
+- Packages include `future`, `future.apply`, `furrr`, `doFuture`, etc.
+- Set up parallel resources with `plan()`
+  - Single node: `plan(multicore)`
+  - Multiple nodes: `plan(cluster)`
+- Parallelize via `future_lapply()`, `future_map()`, etc.
 
 ---
 
-## pbdLapply() example
+## future plan(multicore) example
 
 
 ```r
-# R multinode test (bootstrapping a GLM)
+# R future multicore test (bootstrapping a GLM)
 
-library(pbdMPI)
+library(parallelly)
+library(future)
+library(future.apply)
 
-init()
-
-trials &lt;- 400000
+trials &lt;- 100000
+cores &lt;- as.numeric(Sys.getenv("SLURM_CPUS_PER_TASK"))
 
 data &lt;- iris[iris$Species != "setosa", c(1, 5)]
 data$Species &lt;- factor(data$Species)
@@ -656,56 +663,113 @@ model &lt;- function(i, samp = data) {
   coef(results)
 }
 
-coefs &lt;- pbdLapply(1:trials, model, pbd.mode = "spmd")
+plan(multicore, workers = cores)
 
-comm.print(coefs[[1]])
-
-finalize()
+coefs &lt;- future_lapply(1:trials, model, future.seed = TRUE)
 ```
 
 ---
 
-## Job script for pbdLapply() example
+## Job script for future plan(multicore) example
 
 
 ```sh
 #!/bin/bash
 
-#SBATCH --account=&lt;project_id&gt;
+#SBATCH --account=hpcroot
 #SBATCH --partition=main
-#SBATCH --nodes=2
-#SBATCH --ntasks-per-node=16
-#SBATCH --cpus-per-task=1
-#SBATCH --mem=0
-#SBATCH --time=1:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=2G
+#SBATCH --time=5:00
 
 module purge
 module load gcc/11.3.0
 module load openblas/0.3.20
-module load openmpi/4.1.4
-module load r/4.2.1
+module load r/4.3.0
 
 export OMP_NUM_THREADS=1
 
-srun --mpi=pmix_v2 -n $SLURM_NTASKS Rscript script.R
+Rscript future-multicore.R
+```
+
+---
+
+## future plan(cluster) example
+
+
+```r
+# R future cluster test (bootstrapping a GLM)
+
+library(parallelly)
+library(future)
+library(future.apply)
+
+trials &lt;- 100000
+
+data &lt;- iris[iris$Species != "setosa", c(1, 5)]
+data$Species &lt;- factor(data$Species)
+
+model &lt;- function(i, samp = data) {
+  ind &lt;- sample(nrow(samp), nrow(samp), replace = TRUE)
+  results &lt;- glm(samp[ind, 2] ~ samp[ind, 1], family = binomial(link = "logit"))
+  coef(results)
+}
+
+cl &lt;- makeClusterPSOCK(availableWorkers(), revtunnel = FALSE)
+plan(cluster, workers = cl)
+
+coefs &lt;- future_lapply(1:trials, model, future.seed = TRUE)
+```
+
+---
+
+## Job script for future plan(cluster) example
+
+
+```sh
+#!/bin/bash
+
+#SBATCH --account=hpcroot
+#SBATCH --partition=main
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=2G
+#SBATCH --time=5:00
+
+module purge
+module load gcc/11.3.0
+module load openblas/0.3.20
+module load r/4.3.0
+
+export OMP_NUM_THREADS=1
+
+Rscript future-cluster.R
 ```
 
 ---
 
 ## Creating workflows with targets
 
-- Workflows define a set of steps (R scripts) to achieve some outcome (analysis results)
-- Some of these steps are indepedent and can be run simultaneously
+- Workflows define a set of steps to achieve some outcome
+- E.g., a generic data analysis workflow
+  - Import data
+  - Clean data
+  - Model data
+  - Analysis results
+- Some of these steps are independent and can be run simultaneously
 - Other steps are dependent on previous steps
+- The `targets` package provides utilities for defining R workflows and running steps in parallel
 
 ---
 
 ## Other packages for explicit parallelism
 
 - `foreach` for parallel for loops
-- `pbdMPI` for multi-node computing with MPI
+- `pbdMPI` for multi-node computing using MPI
 - `BiocParallel` for Bioconductor objects
-- `future` / `future.batchtools` for asynchronous evaluations
 - `rslurm` or `slurmR` for submitting Slurm jobs from within R
 - `targets` for defining and running workflows
 - Slurm job arrays or Launcher job packing can be useful too
@@ -722,7 +786,7 @@ srun --mpi=pmix_v2 -n $SLURM_NTASKS Rscript script.R
 - Setting up a job array
   - Add `#SBATCH --array=&lt;index&gt;` option to job script
   - Each job task will use the same resource requests
-  - Modify job or R script to use the array index
+  - Modify job script or R script to use the array index
 - [Slurm job array docs](https://slurm.schedmd.com/job_array.html)
 
 ---
@@ -738,16 +802,16 @@ srun --mpi=pmix_v2 -n $SLURM_NTASKS Rscript script.R
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
-#SBATCH --mem=16GB
+#SBATCH --mem=16G
 #SBATCH --time=1:00:00
 #SBATCH --array=1-3
 
 module purge
 module load gcc/11.3.0
 module load openblas/0.3.20
-module load r/4.2.1
+module load r/4.3.0
 
-printf "%s\n" "Task ID: $SLURM_ARRAY_TASK_ID"
+echo "Task ID: $SLURM_ARRAY_TASK_ID"
 
 Rscript script.R
 ```
@@ -801,6 +865,7 @@ summary(data)
 - If your R code is still not fast enough, consider rewriting it in a compiled language
 - R has a native interface for C and Fortran programs
 - Use `Rcpp` family of packages for interface for C++ programs
+- Could also interface to Julia via `JuliaCall`
 - Which language to use depends on the data types, computations, etc.
 
 ---
@@ -828,10 +893,9 @@ summary(data)
 - [Using R on CARC HPC clusters](https://www.carc.usc.edu/user-information/user-guides/software-and-programming/r)
 - [R package installation guide](https://hpc-discourse.usc.edu/t/r-package-installation-guide/653)
 - [Submit a support ticket](https://www.carc.usc.edu/user-information/ticket-submission)
-- [User Forum](https://hpc-discourse.usc.edu/)
 - Office Hours
   - Every Tuesday 2:30-5pm
-  - Register [here](https://www.carc.usc.edu/news-and-events/events)
+  - Get Zoom link [here](https://www.carc.usc.edu/education-and-resources/office-hours)
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
