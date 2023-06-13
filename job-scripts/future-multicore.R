@@ -1,10 +1,11 @@
-# R multinode test (bootstrapping a GLM)
+# R future multicore test (bootstrapping a GLM)
 
-library(pbdMPI)
+library(parallelly)
+library(future)
+library(future.apply)
 
-init()
-
-trials <- 400000
+trials <- 100000
+cores <- as.numeric(Sys.getenv("SLURM_CPUS_PER_TASK"))
 
 data <- iris[iris$Species != "setosa", c(1, 5)]
 data$Species <- factor(data$Species)
@@ -15,8 +16,6 @@ model <- function(i, samp = data) {
   coef(results)
 }
 
-coefs <- pbdLapply(1:trials, model, pbd.mode = "spmd")
+plan(multicore, workers = cores)
 
-comm.print(coefs[[1]])
-
-finalize()
+coefs <- future_lapply(1:trials, model, future.seed = TRUE)
