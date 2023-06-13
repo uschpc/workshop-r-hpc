@@ -18,7 +18,8 @@ Example job scripts:
 
 - [serial.job](job-scripts/serial.job)
 - [multicore.job](job-scripts/multicore.job)
-- [mpi.job](job-scripts/mpi.job)
+- [future-multicore.job](job-scripts/future-multicore.job)
+- [future-cluster.job](job-scripts/future-cluster.job)
 - [array.job](job-scripts/array.job)
 
 ### Additional resources
@@ -28,12 +29,14 @@ Example job scripts:
 - [R Project](https://www.r-project.org)
 - [R Manuals](https://cran.r-project.org/manuals.html)
 - [R package documentation](https://rdrr.io)
+- [R cheatsheets](https://posit.co/resources/cheatsheets/)
 - [CRAN Task View on High-Performance and Parallel Computing with R](https://cran.r-project.org/web/views/HighPerformanceComputing.html)
 - [HPCRAN](https://hpcran.org/)
 - [Programming with Big Data in R](https://pbdr.org/)
 - [Fastverse](https://fastverse.github.io/fastverse/)
 - [Futureverse](https://www.futureverse.org/)
 - [rOpenSci](https://ropensci.org/)
+- [Bioconductor](https://www.bioconductor.org/)
 
 Web books:
 
