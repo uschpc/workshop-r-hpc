@@ -676,7 +676,7 @@ coefs &lt;- future_lapply(1:trials, model, future.seed = TRUE)
 ```sh
 #!/bin/bash
 
-#SBATCH --account=hpcroot
+#SBATCH --account=&lt;project_id&gt;
 #SBATCH --partition=main
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
@@ -731,7 +731,7 @@ coefs &lt;- future_lapply(1:trials, model, future.seed = TRUE)
 ```sh
 #!/bin/bash
 
-#SBATCH --account=hpcroot
+#SBATCH --account=&lt;project_id&gt;
 #SBATCH --partition=main
 #SBATCH --nodes=2
 #SBATCH --ntasks-per-node=1
