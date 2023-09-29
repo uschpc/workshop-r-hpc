@@ -3,7 +3,7 @@
   <head>
     <title>HPC with R</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Derek Strong   dstrong[at]usc.edu     Center for Advanced Research Computing   University of Southern California  " />
+    <meta name="author" content="     Derek Strong / dstrong[at]usc.edu     Center for Advanced Research Computing   University of Southern California  " />
     <script src="index_files/header-attrs-2.22/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
@@ -15,10 +15,10 @@ class: left, top, title-slide
 # HPC with R
 ]
 .author[
-### Derek Strong <br> dstrong[at]usc.edu <br> <br> Center for Advanced Research Computing <br> University of Southern California <br>
+### <img src="R.png"> <br> <br> Derek Strong / dstrong[at]usc.edu <br> <br> Center for Advanced Research Computing <br> University of Southern California <br>
 ]
 .date[
-### Last updated on 2023-06-13
+### Last updated on 2023-09-29
 ]
 
 ---
@@ -620,7 +620,7 @@ coefs &lt;- mclapply(1:trials, model, mc.cores = cores)
 module purge
 module load gcc/11.3.0
 module load openblas/0.3.20
-module load r/4.3.0
+module load r/4.3.1
 
 export OMP_NUM_THREADS=1
 
@@ -687,7 +687,7 @@ coefs &lt;- future_lapply(1:trials, model, future.seed = TRUE)
 module purge
 module load gcc/11.3.0
 module load openblas/0.3.20
-module load r/4.3.0
+module load r/4.3.1
 
 export OMP_NUM_THREADS=1
 
@@ -742,7 +742,7 @@ coefs &lt;- future_lapply(1:trials, model, future.seed = TRUE)
 module purge
 module load gcc/11.3.0
 module load openblas/0.3.20
-module load r/4.3.0
+module load r/4.3.1
 
 export OMP_NUM_THREADS=1
 
@@ -809,7 +809,7 @@ Rscript future-cluster.R
 module purge
 module load gcc/11.3.0
 module load openblas/0.3.20
-module load r/4.3.0
+module load r/4.3.1
 
 echo "Task ID: $SLURM_ARRAY_TASK_ID"
 

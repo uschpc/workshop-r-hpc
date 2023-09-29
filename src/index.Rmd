@@ -1,6 +1,6 @@
 ---
 title: "HPC with R"
-author: Derek Strong <br> dstrong[at]usc.edu <br> <br> Center for Advanced Research
+author: <img src="R.png"> <br> <br> Derek Strong / dstrong[at]usc.edu <br> <br> Center for Advanced Research
   Computing <br> University of Southern California <br>
 date: "Last updated on `r format(Sys.time(), '%Y-%m-%d')`"
 output:
@@ -606,7 +606,7 @@ coefs <- mclapply(1:trials, model, mc.cores = cores)
 module purge
 module load gcc/11.3.0
 module load openblas/0.3.20
-module load r/4.3.0
+module load r/4.3.1
 
 export OMP_NUM_THREADS=1
 
@@ -671,7 +671,7 @@ coefs <- future_lapply(1:trials, model, future.seed = TRUE)
 module purge
 module load gcc/11.3.0
 module load openblas/0.3.20
-module load r/4.3.0
+module load r/4.3.1
 
 export OMP_NUM_THREADS=1
 
@@ -724,7 +724,7 @@ coefs <- future_lapply(1:trials, model, future.seed = TRUE)
 module purge
 module load gcc/11.3.0
 module load openblas/0.3.20
-module load r/4.3.0
+module load r/4.3.1
 
 export OMP_NUM_THREADS=1
 
@@ -790,7 +790,7 @@ Rscript future-cluster.R
 module purge
 module load gcc/11.3.0
 module load openblas/0.3.20
-module load r/4.3.0
+module load r/4.3.1
 
 echo "Task ID: $SLURM_ARRAY_TASK_ID"
 
