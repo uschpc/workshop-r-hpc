@@ -4,13 +4,11 @@
 #SBATCH --partition=main
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-task=1
 #SBATCH --mem=2G
 #SBATCH --time=5:00
 
 module purge
-module load gcc/11.3.0
-module load openblas/0.3.20
-module load r/4.3.1
+module load rstats/4.5.1
 
-Rscript future-multicore.R
+Rscript serial.R

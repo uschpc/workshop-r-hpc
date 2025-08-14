@@ -10,10 +10,8 @@
 #SBATCH --array=1-3
 
 module purge
-module load gcc/11.3.0
-module load openblas/0.3.20
-module load r/4.3.1
+module load rstats/4.5.1
 
-printf "%s\n" "Task ID: $SLURM_ARRAY_TASK_ID"
+echo "Task ID: $SLURM_ARRAY_TASK_ID"
 
 Rscript array.R
