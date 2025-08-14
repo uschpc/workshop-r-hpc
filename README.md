@@ -1,31 +1,21 @@
-# HPC with R
+# R Programming for HPC
 
-Workshop materials for *HPC with R*.
+Workshop materials for *R Programming for HPC*.
 
-An overview of HPC methods in R programming. Topics include profiling and benchmarking, vectorizing code, memory use, data I/O, and parallel programming. Assumes basic proficiency in R programming.
+An overview of R programming for HPC. Topics include parallel programming, vectorizing code, memory use, data I/O, as well as profiling and benchmarking. Assumes basic proficiency in R programming.
 
 Slides: https://uschpc.github.io/workshop-r-hpc/
 
 Learning objectives:
 
-- Explain basic HPC concepts
+- Explain HPC concepts
+- Develop and run parallel R code
+- Identify and use HPC-oriented R packages
 - Profile and benchmark R code
-- Develop parallel R code
-- Identify HPC-oriented R packages
 - Use R on CARC HPC clusters
-
-Example job scripts:
-
-- [serial.job](job-scripts/serial.job)
-- [multicore.job](job-scripts/multicore.job)
-- [future-multicore.job](job-scripts/future-multicore.job)
-- [future-cluster.job](job-scripts/future-cluster.job)
-- [array.job](job-scripts/array.job)
 
 ### Additional resources
 
-- [Using R on CARC HPC clusters](https://www.carc.usc.edu/user-information/user-guides/software-and-programming/r)
-- [R package installation guide](https://hpc-discourse.usc.edu/t/r-package-installation-guide/653)
 - [R Project](https://www.r-project.org)
 - [R Manuals](https://cran.r-project.org/manuals.html)
 - [R package documentation](https://rdrr.io)
@@ -33,8 +23,8 @@ Example job scripts:
 - [CRAN Task View on High-Performance and Parallel Computing with R](https://cran.r-project.org/web/views/HighPerformanceComputing.html)
 - [HPCRAN](https://hpcran.org/)
 - [Programming with Big Data in R](https://pbdr.org/)
-- [Fastverse](https://fastverse.github.io/fastverse/)
 - [Futureverse](https://www.futureverse.org/)
+- [Fastverse](https://fastverse.github.io/fastverse/)
 - [rOpenSci](https://ropensci.org/)
 - [Bioconductor](https://www.bioconductor.org/)
 
