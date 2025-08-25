@@ -2,7 +2,7 @@
 
 Workshop materials for *R Programming for HPC*.
 
-An overview of R programming for HPC. Topics include parallel programming, vectorizing code, memory use, data I/O, as well as profiling and benchmarking. Assumes basic proficiency in R programming.
+An overview of R programming for HPC. Topics include parallel programming, memory efficiency, data I/O, as well as profiling and benchmarking. Assumes basic proficiency in R programming.
 
 Slides: https://uschpc.github.io/workshop-r-hpc/
 
