@@ -17,7 +17,7 @@ class: center, top, title-slide
 
 ### Center for Advanced Research Computing <br> University of Southern California <br>
 
-#### Last updated on 2025-08-14
+#### Last updated on 2025-10-09
 
 ---
 
@@ -25,11 +25,10 @@ class: center, top, title-slide
 
 1. HPC overview
 2. Parallel programming
-3. Vectorizing code
-4. Using memory efficiently
-5. Processing data efficiently
-6. Profiling and benchmarking
-7. Resources and support
+3. Using memory efficiently
+4. Processing data efficiently
+5. Profiling and benchmarking
+6. Resources and support
 
 ---
 
@@ -45,10 +44,11 @@ class: center, middle, inverse
 
 - High-performance computing
 - Relative to laptop and desktop computers
-- More processors (cluster of compute nodes)
-- More memory (shared and distributed memory)
-- High-capacity, fast-access storage
-- High-speed, high-bandwidth networks
+- More/better compute resources
+  - More processors (cluster of compute nodes)
+  - More memory (shared and distributed memory)
+  - High-capacity, fast-access storage
+  - High-speed, high-bandwidth networks
 
 ---
 
@@ -82,6 +82,7 @@ class: center, middle, inverse
   - Different types of CPUs (e.g., Intel vs. AMD)
   - Varying numbers of **cores per node** (time)
   - Varying amounts of **memory per node** (space)
+  - Different memory bandwidth rates
   - Some nodes may also have GPUs
 - On CARC clusters
   - Use `noderes` command to display available node resources
@@ -137,27 +138,16 @@ class: center, middle, inverse
 
 ---
 
-## General recommendations to improve performance of R code
+## Some recommendations for performance
 
+- Use a better CPU
+- Use existing optimized solutions
 - Code first, optimize later (if needed)
 - Simplify when possible (do less)
-- Use existing optimized solutions
-- Consult package and function documentation
 - Parallelize when appropriate
-- Use vectorized functions
 - Modify-in-place (avoid duplicating data in memory)
 - Profile code to identify bottlenecks
-
----
-
-## Improving performance of serial (single-core) jobs
-
-- Use optimized software (e.g., OpenBLAS, data.table, etc.)
-- Use vectorized functions
-- Modify-in-place (avoid duplicating data in memory)
-- Use a better CPU
-  - Higher frequency
-  - Larger cache sizes
+- Consult package and function documentation
 
 ---
 
@@ -169,11 +159,13 @@ class: center, middle, inverse
 
 ---
 
-## Parallel programming
+## Parallel processing and programming
 
-- Simultaneous execution of different parts of a larger computation
-- Data vs. task parallelism
-- Tightly coupled (interdependent) vs. loosely coupled (independent) computations
+- Parallel processing is the simultaneous execution of different parts of a larger computation
+- Parallel programming implements parallel processing with code
+- Different kinds of parallel processing
+  - Data vs. task parallelism
+  - Tightly coupled (interdependent) vs. loosely coupled (independent) computations
 - Using one (multicore) compute node is easier than using multiple nodes
 - **Scaling** computation to more processors (cores)
 - Focus on **speedup** (decrease in run time)
@@ -198,62 +190,94 @@ class: center, middle, inverse
 
 ## Easy parallelism
 
-- Just specify number of cores or threads for function to use
+- Simply specify number of cores or threads for function to use
   - Parallel programming details are abstracted away
-  - Typically limited to one compute node (so maximize cores)
-  - Less than or equal to physical cores or `$SLURM_CPUS_PER_TASK`
-- Multi-threaded BLAS/LAPACK library (not default reference)
+  - May be limited to one compute node (so maximize cores)
+  - Set less than or equal to physical cores or `$SLURM_CPUS_PER_TASK`
+- Various examples
+  - Multi-threading linear algebra library
+  - Multi-threading `data.table` (via OpenMP)
+  - Multi-processing `mclappy()`
+  - Multi-processing `BiocParallel`
+
+---
+
+## Multi-threaded BLAS/LAPACK library
+
+- R uses external library for linear algebra operations
   - BLAS = Basic Linear Algebra Subprograms
   - LAPACK = Linear Algebra Package
-  - For example, OpenBLAS, Intel MKL, or AMD BLIS
-- Packages with multi-threaded programs
-  - Typically programs written in C/C++ and using OpenMP for multi-threading
-  - For example, `data.table` is multi-threaded via OpenMP
+- On CARC clusters, the R modules use multi-threaded OpenBLAS (via OpenMP)
+  - Default setting is one thread
+  - Also built with dynamic CPU architecture optimizations
+  - Set number of threads to use with environment variable `OMP_NUM_THREADS`
+
+```bash
+# Allocate resources on compute node
+salloc -c 8
+
+# Load R, set threads, then start R
+module purge
+module load rstats/4.5.1
+export OMP_NUM_THREADS=8
+R
+```
 
 ---
 
-## Multi-threaded OpenBLAS
+## OpenBLAS threads example
 
-- On CARC HPC clusters, R modules use multi-threaded OpenBLAS (via OpenMP)
-- Also built with dynamic CPU architecture optimizations
-- Set number of threads to use with environment variable `OMP_NUM_THREADS`
-- Or use `openblasctl` package
-  - `install.packages("openblasctl", repos = "https://hpcran.org")`
-  - Set threads dynamically using `openblasctl::openblas_set_num_threads()`
-
----
-
-## OpenBLAS example
+Compare time for operations with varying threads and data sizes
 
 ```r
-library(openblasctl)
+# Smaller data
+mat <- matrix(rexp(1000000), ncol = 1000)
+mat2 <- matrix(rexp(1000000), ncol = 1000)
 
-mat <- matrix(rexp(4000000), ncol = 2000)
-
-openblas_set_num_threads(1)
-
+system.time(mat %*% mat2)
 system.time(eigen(mat))
 system.time(svd(mat))
 
-openblas_set_num_threads(4)
+# Larger data
+mat <- matrix(rexp(25000000), ncol = 5000)
+mat2 <- matrix(rexp(25000000), ncol = 5000)
 
+system.time(mat %*% mat2)
 system.time(eigen(mat))
 system.time(svd(mat))
 ```
 
 ---
 
-## data.table example
+## Guidance for OpenBLAS threads
+
+- The default of one thread is fine in many cases
+- If working with large data sets, consider using multiple threads
+  - Could save a lot of time if doing many BLAS operations
+- If doing parallel iteration with BLAS operations, use one thread (the default) or restrict iterations
+  - Otherwise, resource contention that can degrade performance
+  - For example, 8 cores total but running 8 parallel iterations trying to use 8 threads each
+      - So restrict to 1 thread or get 64 cores in that case
+
+---
+
+## data.table threads example
+
+Compare time to write files with varying threads
 
 ```r
 library(data.table)
 
 getDTthreads()
 
-setDTthreads(16)
+mat <- matrix(rexp(100000000), ncol = 10000)
+
+system.time(fwrite(mat, paste0(Sys.getenv("TMPDIR"), "/mat.csv")))
 
 threads <- as.numeric(Sys.getenv("SLURM_CPUS_PER_TASK"))
 setDTthreads(threads)
+
+system.time(fwrite(mat, paste0(Sys.getenv("TMPDIR"), "/mat2.csv")))
 ```
 
 ---
@@ -270,7 +294,7 @@ setDTthreads(threads)
   - Use high-level functions to do this (e.g., `mclapply()`)
   - Easier to set up with single node compared to multiple nodes
 - Nested parallelism can cause resource contention
-  - So set BLAS and OpenMP threads to 1 in these cases
+  - So set BLAS and OpenMP threads to 1 in these cases (the default)
 
 ---
 
@@ -527,15 +551,25 @@ srun Rscript script.R
 ## Other relevant packages
 
 - `foreach` for parallel for loops
-- `BiocParallel` for Bioconductor objects
-- `rslurm` or `slurmR` for submitting Slurm jobs from within R
-- `targets` for defining workflows and parallel execution of steps
+- `BiocParallel` for parallel processing with Bioconductor objects
+- `Rmpi` for parallel processing using MPI
+
+---
+
+## Job parallelism and many-task computing
+
+- Running many jobs/tasks in parallel (independent or dependent)
+- `rslurm`, `slurmR`, or `batchtools` for parallel processing by submitting Slurm jobs
+- `clustermq` or `mirai` for parallel processing of many tasks (locally or as Slurm jobs)
+- For defined workflows, use `targets` package with parallel processing
+- For running many similar jobs, use Slurm job arrays
+- For running many short-running jobs, use [HyperShell](https://hypershell.readthedocs.io/)
 
 ---
 
 ## Slurm job arrays
 
-- For submitting and managing collections of similar jobs quickly and easily
+- For submitting many similar Slurm jobs using a single job script
 - Some use cases
   - Varying simulation or model parameters
   - Running the same processing steps on different datasets
@@ -544,6 +578,7 @@ srun Rscript script.R
   - Add `#SBATCH --array=<index>` option to job script
   - Each job task will use the same resource requests
   - Modify job script or R script to use the array index
+- Slurm job limits may require submitting array in chunks
 - [Slurm job array docs](https://slurm.schedmd.com/job_array.html)
 
 ---
@@ -591,14 +626,21 @@ summary(data)
 
 ---
 
-## Many-task computing
+## Many-task computing with HyperShell
 
-- Lots of short-running jobs (< 15 minutes)
+- [HyperShell](https://hypershell.readthedocs.io/) can be used like a mini-scheduler within a Slurm job
+- Submitting lots of jobs (e.g., > 1000) negatively impacts the Slurm job scheduler
+- And there are limits on the number of jobs a user can submit at the same time
+- So pack short-running jobs (e.g., < 1 hour) into one Slurm job
   - Lots of serial jobs that could be run in parallel on different cores
   - Lots of parallel jobs that could be run sequentially or in parallel
-- Submitting lots of jobs (> 1000) negatively impacts job scheduler
-- Pack short-running jobs into one job
-- Use a program like [HyperShell](https://hypershell.readthedocs.io/)
+
+```bash
+# Load modules
+module purge
+module load hypershell/2.7.2
+module load rstats/4.5.1
+```
 
 ---
 
@@ -606,7 +648,7 @@ summary(data)
 
 - No well-maintained R packages for using GPUs
 - May not be worth using GPUs (compared to multi-threaded BLAS)
-- Mostly useful for machine learning packages
+- Mostly useful for machine learning tasks
   - `torch`
   - `keras`
   - `tensorflow`
@@ -615,7 +657,7 @@ summary(data)
 
 ## Interfacing to a compiled language
 
-- If your R code is still not fast enough, consider rewriting it in a compiled language
+- If your R code is not fast enough, consider rewriting it in a compiled language
 - R has a native interface for C and Fortran programs
 - Use `Rcpp` family of packages as interface for C++ programs
 - Could also interface to Julia via `JuliaCall`
@@ -626,44 +668,6 @@ summary(data)
 class: center, middle, inverse
 
 ## Section 3
-
-### Vectorizing code
-
----
-
-## Vectorizing code
-
-- R is designed around vectors (objects stored in column-major order)
-- Vectorize code when possible to improve performance
-  - Think in terms of vectors (or columns), not scalars
-  - Perform operations on vectors, not individual elements
-- Use vectorized functions that already exist
-  - These functions are typically for loops written in C/C++/Fortran
-  - Examples: arithmetic and matrix operators, `colMeans()`, `ifelse()`
-- A vectorized function in R is easier to read and write
-
----
-
-## Vectorizing example
-
-```r
-vec <- rexp(200000000)
-
-system.time({
-  test <- numeric(length(vec))
-  for (i in seq_along(vec)) {
-    test[i] <- vec[i] * 3
-  }
-})
-
-system.time(test2 <- vec * 3)
-```
-
----
-
-class: center, middle, inverse
-
-## Section 4
 
 ### Using memory efficiently
 
@@ -742,7 +746,7 @@ tracemem(b)
 
 class: center, middle, inverse
 
-## Section 5
+## Section 4
 
 ### Processing data efficiently
 
@@ -779,7 +783,7 @@ class: center, middle, inverse
 
 class: center, middle, inverse
 
-## Section 6
+## Section 5
 
 ### Profiling and benchmarking
 
@@ -869,7 +873,7 @@ system.time(colMeans(mat))
 
 class: center, middle, inverse
 
-## Section 7
+## Section 6
 
 ### Resources and support
 
