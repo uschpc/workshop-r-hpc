@@ -17,7 +17,7 @@ class: center, top, title-slide
 
 ### Center for Advanced Research Computing <br> University of Southern California <br>
 
-#### Last updated on 2025-10-09
+#### Last updated on 2026-03-06
 
 ---
 
@@ -44,7 +44,7 @@ class: center, middle, inverse
 
 - High-performance computing
 - Relative to laptop and desktop computers
-- More/better compute resources
+- More and better compute resources
   - More processors (cluster of compute nodes)
   - More memory (shared and distributed memory)
   - High-capacity, fast-access storage
@@ -125,19 +125,6 @@ class: center, middle, inverse
 
 ---
 
-## Software optimization
-
-- R itself is mostly written in compiled languages (C/C++/Fortran)
-- Many R functions and packages are actually interfaces to compiled programs
-- Compiled programs can be optimized based on CPU architectures
-- Compiler optimization flags can be used to improve performance of R and some R packages
-  - Primarily for installing packages on Linux from source
-  - Specify optimization flags in `~/.R/Makevars`
-  - If targeting a specific CPU type, the program will only run on that CPU type
-  - Examples: `data.table`, `RStan`
-
----
-
 ## Some recommendations for performance
 
 - Use a better CPU
@@ -164,11 +151,12 @@ class: center, middle, inverse
 - Parallel processing is the simultaneous execution of different parts of a larger computation
 - Parallel programming implements parallel processing with code
 - Different kinds of parallel processing
-  - Data vs. task parallelism
-  - Tightly coupled (interdependent) vs. loosely coupled (independent) computations
-- Using one (multicore) compute node is easier than using multiple nodes
-- **Scaling** computation to more processors (cores)
-- Focus on **speedup** (decrease in run time)
+  - Data parallelism (e.g., split data into chunks and process)
+  - Task parallelism (e.g., model parameter sweeps)
+  - Loosely coupled parallelism (e.g., independent iterations with no communication)
+  - Tightly coupled parallelism (e.g., interdependent iterations with communication)
+- Parallel programming for one compute node is easier than for multiple nodes
+- **Scaling** to more processors can lead to a **speedup** (decrease in run time)
 
 ---
 
@@ -181,24 +169,25 @@ class: center, middle, inverse
   - Copying data and environment
   - Communications
   - Load balancing
-- Speedup not proportional to number of cores (Amdahl's law)
-- Optimal number of cores
-  - Depends on specific computations
-  - Experiment to find
+- Speedup not necessarily proportional to number of cores (Amdahl's law)
+- There is an optimal number of cores to use
+  - Depends on specific data and computations
+  - Must experiment to find
 
 ---
 
 ## Easy parallelism
 
-- Simply specify number of cores or threads for function to use
-  - Parallel programming details are abstracted away
-  - May be limited to one compute node (so maximize cores)
+- Simply specify number of cores or threads to use
+  - Functions with a cores or threads argument
+  - Parallel programming details are abstracted away for end user
+  - Typically limited to one compute node (so maximize cores on node)
   - Set less than or equal to physical cores or `$SLURM_CPUS_PER_TASK`
 - Various examples
-  - Multi-threading linear algebra library
-  - Multi-threading `data.table` (via OpenMP)
-  - Multi-processing `mclappy()`
-  - Multi-processing `BiocParallel`
+  - Multi-threading linear algebra library (e.g., OpenBLAS)
+  - Multi-threading `data.table` package (via OpenMP)
+  - Multi-processing `parallel` package
+  - Multi-processing `BiocParallel` package
 
 ---
 
@@ -218,7 +207,7 @@ salloc -c 8
 
 # Load R, set threads, then start R
 module purge
-module load rstats/4.5.1
+module load rstats/4.5.2
 export OMP_NUM_THREADS=8
 R
 ```
@@ -255,9 +244,9 @@ system.time(svd(mat))
 - If working with large data sets, consider using multiple threads
   - Could save a lot of time if doing many BLAS operations
 - If doing parallel iteration with BLAS operations, use one thread (the default) or restrict iterations
-  - Otherwise, resource contention that can degrade performance
+  - Otherwise, there is resource contention that can degrade performance
   - For example, 8 cores total but running 8 parallel iterations trying to use 8 threads each
-      - So restrict to 1 thread or get 64 cores in that case
+      - So restrict BLAS to 1 thread or get 64 cores in this case
 
 ---
 
@@ -316,7 +305,7 @@ system.time(fwrite(mat, paste0(Sys.getenv("TMPDIR"), "/mat2.csv")))
 
 ## Using mclapply()
 
-- Parallel version of `lapply()` using forking
+- Parallel, multicore version of `lapply()` using forking
   - Works on Linux or macOS
   - Will only use 1 core on Windows
 - Forking is faster than making socket clusters
@@ -364,7 +353,7 @@ coefs <- mclapply(1:trials, model, mc.cores = cores)
 #SBATCH --time=5:00
 
 module purge
-module load rstats/4.5.1
+module load rstats/4.5.2
 
 Rscript multicore.R
 ```
@@ -379,7 +368,6 @@ Rscript multicore.R
 - Set up parallel resources with `plan()`
   - Single node: `plan(multicore)`
   - Multiple nodes: `plan(cluster)`
-      - Does not scale well beyond a few nodes
 - Various functions for parallel computing
   - `future_lapply()`
   - `future_map()`
@@ -429,7 +417,7 @@ coefs <- future_lapply(1:trials, model, future.seed = TRUE)
 #SBATCH --time=5:00
 
 module purge
-module load rstats/4.5.1
+module load rstats/4.5.2
 
 Rscript future-multicore.R
 ```
@@ -478,72 +466,9 @@ coefs <- future_lapply(1:trials, model, future.seed = TRUE)
 #SBATCH --time=5:00
 
 module purge
-module load rstats/4.5.1
+module load rstats/4.5.2
 
 Rscript future-cluster.R
-```
-
----
-
-## Parallel with pbdMPI
-
-- `pbdMPI` package provides an interface to an MPI library
-  - Message Passing Interface (MPI)
-  - Optimized for multi-node communications
-  - On CARC HPC clusters, R modules use OpenMPI
-- Provides best performance when scaling to many nodes
-  - For using many CPU cores across multiple nodes
-  - Or using few CPU cores but lots of memory on multiple nodes
-- Main function to use is `pbdLapply()`
-
----
-
-## pbdLapply() example
-
-```r
-# R pbdMPI multinode test (bootstrapping a GLM)
-
-library(pbdMPI)
-
-init()
-
-trials <- 400000
-
-data <- iris[iris$Species != "setosa", c(1, 5)]
-data$Species <- factor(data$Species)
-
-model <- function(i, samp = data) {
-  ind <- sample(nrow(samp), nrow(samp), replace = TRUE)
-  results <- glm(samp[ind, 2] ~ samp[ind, 1], family = binomial(link = "logit"))
-  coef(results)
-}
-
-coefs <- pbdLapply(1:trials, model, pbd.mode = "spmd")
-
-comm.print(coefs[[1]])
-
-finalize()
-```
-
----
-
-## Job script for pbdLapply() example
-
-```bash
-#!/bin/bash
-
-#SBATCH --account=<project_id>
-#SBATCH --partition=main
-#SBATCH --nodes=2
-#SBATCH --ntasks-per-node=16
-#SBATCH --cpus-per-task=1
-#SBATCH --mem=64G
-#SBATCH --time=1:00:00
-
-module purge
-module load rstats/4.5.1
-
-srun Rscript script.R
 ```
 
 ---
@@ -553,6 +478,7 @@ srun Rscript script.R
 - `foreach` for parallel for loops
 - `BiocParallel` for parallel processing with Bioconductor objects
 - `Rmpi` for parallel processing using MPI
+- `pbdMPI` for parallel processing using MPI
 
 ---
 
@@ -598,7 +524,7 @@ srun Rscript script.R
 #SBATCH --array=1-3
 
 module purge
-module load rstats/4.5.1
+module load rstats/4.5.2
 
 echo "Task ID: $SLURM_ARRAY_TASK_ID"
 
@@ -639,7 +565,7 @@ summary(data)
 # Load modules
 module purge
 module load hypershell/2.7.2
-module load rstats/4.5.1
+module load rstats/4.5.2
 ```
 
 ---
@@ -884,13 +810,14 @@ class: center, middle, inverse
 - [R Project](https://www.r-project.org)
 - [R Manuals](https://cran.r-project.org/manuals.html)
 - [R package documentation](https://rdrr.io)
+- [R cheatsheets](https://posit.co/resources/cheatsheets/)
 - [CRAN Task View on High-Performance and Parallel Computing with R](https://cran.r-project.org/web/views/HighPerformanceComputing.html)
-- [HPCRAN](https://hpcran.org/)
-- [Programming with Big Data in R](https://pbdr.org/)
-- [Futureverse](https://www.futureverse.org/)
 - [Fastverse](https://fastverse.github.io/fastverse/)
-- [rOpenSci](https://ropensci.org/)
-- [Bioconductor](https://www.bioconductor.org/)
+- [Futureverse](https://www.futureverse.org)
+- [Programming with Big Data in R](https://pbdr.org)
+- [HPCRAN](https://hpcran.org)
+- [rOpenSci](https://ropensci.org)
+- [Bioconductor](https://www.bioconductor.org)
 
 ---
 
