@@ -6,6 +6,8 @@ An overview of R programming for HPC. Topics include parallel programming, memor
 
 Slides: https://uschpc.github.io/workshop-r-hpc/
 
+Example scripts: [examples](examples)
+
 Learning objectives:
 
 - Explain HPC concepts
@@ -21,12 +23,12 @@ Learning objectives:
 - [R package documentation](https://rdrr.io)
 - [R cheatsheets](https://posit.co/resources/cheatsheets/)
 - [CRAN Task View on High-Performance and Parallel Computing with R](https://cran.r-project.org/web/views/HighPerformanceComputing.html)
-- [HPCRAN](https://hpcran.org/)
-- [Programming with Big Data in R](https://pbdr.org/)
-- [Futureverse](https://www.futureverse.org/)
 - [Fastverse](https://fastverse.github.io/fastverse/)
-- [rOpenSci](https://ropensci.org/)
-- [Bioconductor](https://www.bioconductor.org/)
+- [Futureverse](https://www.futureverse.org)
+- [Programming with Big Data in R](https://pbdr.org)
+- [HPCRAN](https://hpcran.org)
+- [rOpenSci](https://ropensci.org)
+- [Bioconductor](https://www.bioconductor.org)
 
 Web books:
 
