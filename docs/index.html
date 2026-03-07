@@ -176,8 +176,10 @@ class: center, middle, inverse
 
 ---
 
-## Easy parallelism
+## Parallel processing in R
 
+- Easy to do in most cases using existing packages
+- Requires changing only a few lines of code
 - Simply specify number of cores or threads to use
   - Functions with a cores or threads argument
   - Parallel programming details are abstracted away for end user
@@ -187,7 +189,36 @@ class: center, middle, inverse
   - Multi-threading linear algebra library (e.g., OpenBLAS)
   - Multi-threading `data.table` package (via OpenMP)
   - Multi-processing `parallel` package
-  - Multi-processing `BiocParallel` package
+  - Multi-processing `future` packages
+
+---
+
+## Prereqs for examples
+
+Start interactive Slurm job via salloc (or RStudio Server app):
+
+```bash
+salloc --cpus-per-task=8
+```
+
+Load and start R:
+
+```bash
+module purge
+module load rstats/4.5.2
+R
+```
+
+Install packages:
+
+```bash
+install.packages("RhpcBLASctl")
+install.packages("data.table")
+install.packages("parallelly")
+install.packages("future")
+install.packages("future.apply")
+install.packages("proftools")
+```
 
 ---
 
@@ -197,20 +228,13 @@ class: center, middle, inverse
   - BLAS = Basic Linear Algebra Subprograms
   - LAPACK = Linear Algebra Package
 - On CARC clusters, the R modules use multi-threaded OpenBLAS (via OpenMP)
-  - Default setting is one thread
+  - By default, multiple threads will be used as needed (if data is large enough)
   - Also built with dynamic CPU architecture optimizations
-  - Set number of threads to use with environment variable `OMP_NUM_THREADS`
-
-```bash
-# Allocate resources on compute node
-salloc -c 8
-
-# Load R, set threads, then start R
-module purge
-module load rstats/4.5.2
-export OMP_NUM_THREADS=8
-R
-```
+- Control number of threads via `RhpcBLASctl` package
+- If doing parallel tasks with BLAS operations, then use 1 BLAS thread or restrict iterations
+  - Otherwise, there is resource contention that can degrade performance
+  - For example, 8 cores available but running 8 parallel tasks trying to use 8 threads each
+      - So restrict BLAS to 1 thread or get 64 cores in this case
 
 ---
 
@@ -219,7 +243,14 @@ R
 Compare time for operations with varying threads and data sizes
 
 ```r
-# Smaller data
+library(RhpcBLASctl)
+
+omp_get_max_threads()
+
+# Start with 1 thread, then repeat with 8 and 16 threads
+omp_set_num_threads(1)
+
+# Small data
 mat <- matrix(rexp(1000000), ncol = 1000)
 mat2 <- matrix(rexp(1000000), ncol = 1000)
 
@@ -227,7 +258,7 @@ system.time(mat %*% mat2)
 system.time(eigen(mat))
 system.time(svd(mat))
 
-# Larger data
+# Large data
 mat <- matrix(rexp(25000000), ncol = 5000)
 mat2 <- matrix(rexp(25000000), ncol = 5000)
 
@@ -235,18 +266,6 @@ system.time(mat %*% mat2)
 system.time(eigen(mat))
 system.time(svd(mat))
 ```
-
----
-
-## Guidance for OpenBLAS threads
-
-- The default of one thread is fine in many cases
-- If working with large data sets, consider using multiple threads
-  - Could save a lot of time if doing many BLAS operations
-- If doing parallel iteration with BLAS operations, use one thread (the default) or restrict iterations
-  - Otherwise, there is resource contention that can degrade performance
-  - For example, 8 cores total but running 8 parallel iterations trying to use 8 threads each
-      - So restrict BLAS to 1 thread or get 64 cores in this case
 
 ---
 
@@ -259,13 +278,15 @@ library(data.table)
 
 getDTthreads()
 
-mat <- matrix(rexp(100000000), ncol = 10000)
+mat <- matrix(rexp(200000000), ncol = 10000)
 
+# Start with 1 thread
+setDTthreads(1)
 system.time(fwrite(mat, paste0(Sys.getenv("TMPDIR"), "/mat.csv")))
 
+# Repeat with multiple threads
 threads <- as.numeric(Sys.getenv("SLURM_CPUS_PER_TASK"))
 setDTthreads(threads)
-
 system.time(fwrite(mat, paste0(Sys.getenv("TMPDIR"), "/mat2.csv")))
 ```
 
@@ -278,12 +299,12 @@ system.time(fwrite(mat, paste0(Sys.getenv("TMPDIR"), "/mat2.csv")))
   - Running same data processing workflow on many data files
   - Running same statistical model on many datasets
   - Running many alternative models on same dataset
-  - Processing and analyzing data larger than memory available on single node
-- Set up cluster of cores or nodes to parallelize over
+- Set up cluster of cores to parallelize over (on one or more nodes)
   - Use high-level functions to do this (e.g., `mclapply()`)
   - Easier to set up with single node compared to multiple nodes
-- Nested parallelism can cause resource contention
-  - So set BLAS and OpenMP threads to 1 in these cases (the default)
+- Nested parallelism can cause resource contention and degrade performance
+  - So make sure you have enough CPU cores
+  - Or remove nested parallelism (e.g., use 1 BLAS thread)
 
 ---
 
@@ -305,13 +326,13 @@ system.time(fwrite(mat, paste0(Sys.getenv("TMPDIR"), "/mat2.csv")))
 
 ## Using mclapply()
 
-- Parallel, multicore version of `lapply()` using forking
+- Apply same function to different inputs in parallel using multiple cores
+- Multicore version of `lapply()` using forking
   - Works on Linux or macOS
   - Will only use 1 core on Windows
-- Forking is faster than making socket clusters
-- Use on a single node with multiple cores
-- For loosely coupled (independent) tasks (no communication needed between tasks)
-- Apply same function to multiple inputs simultaneously using multiple cores
+  - Forking is faster than making socket clusters
+- Restricted to a single node with multiple cores
+- For independent tasks (no communication needed between tasks)
 
 ---
 
@@ -334,7 +355,11 @@ model <- function(i, samp = data) {
   coef(results)
 }
 
-coefs <- mclapply(1:trials, model, mc.cores = cores)
+# Start with 1 core
+system.time(lapply(1:trials, model))
+
+# Then repeat with multiple cores
+system.time(mclapply(1:trials, model, mc.cores = cores))
 ```
 
 ---
@@ -735,8 +760,8 @@ class: center, middle, inverse
 - `proftools` (more features, better interface)
 - `profmem` for memory profiling
 - `pbdPROF`, `pbdPAPI`, and `hpcvis` for MPI and low-level profiling
-- Profiling output can be difficult to interpret
 - Note that C/C++/Fortran code is not profiled (except with `pbdPAPI`)
+- Profiling output can be difficult to interpret
 - Use [CARC OnDemand](https://ondemand.carc.usc.edu) apps like RStudio Server to view graphics
 
 ---
