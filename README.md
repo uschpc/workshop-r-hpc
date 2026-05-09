@@ -2,11 +2,17 @@
 
 Workshop materials for *R Programming for HPC*.
 
-An overview of R programming for HPC. Topics include parallel programming, memory efficiency, data I/O, as well as profiling and benchmarking. Assumes basic proficiency in R programming.
+An overview of R programming for HPC. Topics include parallel programming, memory efficiency, data I/O, as well as profiling and benchmarking.
 
 Slides: https://uschpc.github.io/workshop-r-hpc/
 
 Example scripts: [examples](examples)
+
+Prerequisites:
+
+- Basic proficiency in R programming
+- Basic proficiency in shell commands and scripting
+- Basic proficiency in Slurm jobs
 
 Learning objectives:
 
@@ -15,23 +21,3 @@ Learning objectives:
 - Identify and use HPC-oriented R packages
 - Profile and benchmark R code
 - Use R on CARC HPC clusters
-
-### Additional resources
-
-- [R Project](https://www.r-project.org)
-- [R Manuals](https://cran.r-project.org/manuals.html)
-- [R package documentation](https://rdrr.io)
-- [R cheatsheets](https://posit.co/resources/cheatsheets/)
-- [CRAN Task View on High-Performance and Parallel Computing with R](https://cran.r-project.org/web/views/HighPerformanceComputing.html)
-- [Fastverse](https://fastverse.github.io/fastverse/)
-- [Futureverse](https://www.futureverse.org)
-- [Programming with Big Data in R](https://pbdr.org)
-- [HPCRAN](https://hpcran.org)
-- [rOpenSci](https://ropensci.org)
-- [Bioconductor](https://www.bioconductor.org)
-
-Web books:
-
-- [The R Inferno](https://www.burns-stat.com/documents/books/the-r-inferno/)
-- [Advanced R](https://adv-r.hadley.nz/)
-- [Efficient R Programming](https://csgillespie.github.io/efficientR/)
