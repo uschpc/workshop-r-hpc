@@ -17,7 +17,7 @@ class: center, top, title-slide
 
 ### Center for Advanced Research Computing <br> University of Southern California <br>
 
-#### Last updated on 2026-03-06
+#### Last updated on 2026-05-08
 
 ---
 
@@ -138,6 +138,60 @@ class: center, middle, inverse
 
 ---
 
+## Using R on CARC clusters
+
+- Via [CARC OnDemand](https://ondemand.carc.usc.edu) interactive apps
+  - RStudio Server, JupyterLab, Code Server, etc.
+  - Apps run as Slurm jobs
+- Via command line within Slurm jobs (interactive or batch)
+  - R loaded via software module
+  - Which uses R container built and run using Apptainer
+
+```bash
+# Load R module
+module purge
+module load r/4.5.3
+
+# Interactive mode
+R
+
+# Batch mode
+Rscript script.R
+```
+
+---
+
+## Prereqs for examples
+
+Start interactive Slurm job via [RStudio Server app](https://ondemand.carc.usc.edu/pun/sys/dashboard/batch_connect/sys/rstudio/session_contexts/new)
+
+Or via salloc:
+
+```bash
+# Request resources
+salloc --cpus-per-task=8 --time=2:00:00
+
+# Load and start R
+module purge
+module load r/4.5.3
+R
+```
+
+Install packages:
+
+```bash
+install.packages("RhpcBLASctl")
+install.packages("data.table")
+install.packages("parallelly")
+install.packages("future")
+install.packages("future.apply")
+install.packages("proftools")
+install.packages("boot")
+install.packages("bench")
+```
+
+---
+
 class: center, middle, inverse
 
 ## Section 2
@@ -153,23 +207,23 @@ class: center, middle, inverse
 - Different kinds of parallel processing
   - Data parallelism (e.g., split data into chunks and process)
   - Task parallelism (e.g., model parameter sweeps)
-  - Loosely coupled parallelism (e.g., independent iterations with no communication)
-  - Tightly coupled parallelism (e.g., interdependent iterations with communication)
+  - Loosely coupled parallelism (e.g., independent tasks with no communication)
+  - Tightly coupled parallelism (e.g., interdependent tasks with communication)
 - Parallel programming for one compute node is easier than for multiple nodes
 - **Scaling** to more processors can lead to a **speedup** (decrease in run time)
 
 ---
 
-## Costs of parallelizing
+## Some costs to parallelizing
 
 - Some computations are not worth parallelizing
-- Some costs to parallelizing (overhead)
+- Incurs overhead
   - Changing code
   - Spawning child processes
   - Copying data and environment
   - Communications
   - Load balancing
-- Speedup not necessarily proportional to number of cores (Amdahl's law)
+- Speedup is not necessarily proportional to number of cores (Amdahl's law)
 - There is an optimal number of cores to use
   - Depends on specific data and computations
   - Must experiment to find
@@ -184,7 +238,7 @@ class: center, middle, inverse
   - Functions with a cores or threads argument
   - Parallel programming details are abstracted away for end user
   - Typically limited to one compute node (so maximize cores on node)
-  - Set less than or equal to physical cores or `$SLURM_CPUS_PER_TASK`
+  - Set less than or equal to physical cores
 - Various examples
   - Multi-threading linear algebra library (e.g., OpenBLAS)
   - Multi-threading `data.table` package (via OpenMP)
@@ -193,61 +247,30 @@ class: center, middle, inverse
 
 ---
 
-## Prereqs for examples
-
-Start interactive Slurm job via salloc (or RStudio Server app):
-
-```bash
-salloc --cpus-per-task=8
-```
-
-Load and start R:
-
-```bash
-module purge
-module load rstats/4.5.2
-R
-```
-
-Install packages:
-
-```bash
-install.packages("RhpcBLASctl")
-install.packages("data.table")
-install.packages("parallelly")
-install.packages("future")
-install.packages("future.apply")
-install.packages("proftools")
-```
-
----
-
 ## Multi-threaded BLAS/LAPACK library
 
 - R uses external library for linear algebra operations
   - BLAS = Basic Linear Algebra Subprograms
   - LAPACK = Linear Algebra Package
-- On CARC clusters, the R modules use multi-threaded OpenBLAS (via OpenMP)
+- On CARC clusters, the R modules use multi-threaded OpenBLAS
   - By default, multiple threads will be used as needed (if data is large enough)
-  - Also built with dynamic CPU architecture optimizations
-- Control number of threads via `RhpcBLASctl` package
-- If doing parallel tasks with BLAS operations, then use 1 BLAS thread or restrict iterations
-  - Otherwise, there is resource contention that can degrade performance
-  - For example, 8 cores available but running 8 parallel tasks trying to use 8 threads each
-      - So restrict BLAS to 1 thread or get 64 cores in this case
+  - Also uses dynamic CPU architecture optimizations
+- Can control number of OpenBLAS threads
+  - Statically via environment variable OPENBLAS_NUM_THREADS
+  - Dynamically via `RhpcBLASctl` package
 
 ---
 
 ## OpenBLAS threads example
 
-Compare time for operations with varying threads and data sizes
+Compare run time with varying threads and data sizes
 
 ```r
 library(RhpcBLASctl)
 
 omp_get_max_threads()
 
-# Start with 1 thread, then repeat with 8 and 16 threads
+# Start with 1 thread, then repeat with 8 threads
 omp_set_num_threads(1)
 
 # Small data
@@ -302,49 +325,44 @@ system.time(fwrite(mat, paste0(Sys.getenv("TMPDIR"), "/mat2.csv")))
 - Set up cluster of cores to parallelize over (on one or more nodes)
   - Use high-level functions to do this (e.g., `mclapply()`)
   - Easier to set up with single node compared to multiple nodes
-- Nested parallelism can cause resource contention and degrade performance
-  - So make sure you have enough CPU cores
-  - Or remove nested parallelism (e.g., use 1 BLAS thread)
 
 ---
 
-## Base R parallel package
+## The parallel package
 
 - `library(parallel)`
-- Various functions for parallel computing
-  - `mclapply()`
-  - `mcmapply()`
-  - `pvec()`
-  - `makeCluster()`
-  - `parApply()`
-  - `parLapply()`
-  - `parSapply()`
-  - `mcparallel()`
-  - `mccollect()`
+- Included with base R
+- Various functions for parallel processing
+- [Manual page](https://cran.r-project.org/doc/manuals/r-release/packages/parallel/refman/parallel.html)
 
 ---
 
-## Using mclapply()
+## mclapply() and parLapply()
 
-- Apply same function to different inputs in parallel using multiple cores
-- Multicore version of `lapply()` using forking
-  - Works on Linux or macOS
-  - Will only use 1 core on Windows
-  - Forking is faster than making socket clusters
-- Restricted to a single node with multiple cores
+- Parallel versions of `lapply()`
+  - Apply same function to different inputs in parallel using multiple cores
+  - Return list with same length as vector of inputs
 - For independent tasks (no communication needed between tasks)
+- `mclapply()`
+  - Parallel version of `lapply()` using forking
+  - Single node
+  - Works on Linux or macOS; uses 1 core on Windows
+  - May be faster than `parLapply()`
+  - May not work well within RStudio or other GUIs
+- `parLapply()`
+  - Parallel version of `lapply()` using sockets
+  - Single node or multiple nodes
+  - Works on Linux, macOS, and Windows
+  - Requires setting up workers, exporting data, etc.
 
 ---
 
 ## mclapply() example
 
 ```r
-# R multicore test (bootstrapping a GLM)
+# R parallel mclapply() test (bootstrapping a GLM)
 
 library(parallel)
-
-trials <- 100000
-cores <- as.numeric(Sys.getenv("SLURM_CPUS_PER_TASK"))
 
 data <- iris[iris$Species != "setosa", c(1, 5)]
 data$Species <- factor(data$Species)
@@ -354,6 +372,9 @@ model <- function(i, samp = data) {
   results <- glm(samp[ind, 2] ~ samp[ind, 1], family = binomial(link = "logit"))
   coef(results)
 }
+
+trials <- 100000
+cores <- as.numeric(Sys.getenv("SLURM_CPUS_PER_TASK"))
 
 # Start with 1 core
 system.time(lapply(1:trials, model))
@@ -378,39 +399,59 @@ system.time(mclapply(1:trials, model, mc.cores = cores))
 #SBATCH --time=5:00
 
 module purge
-module load rstats/4.5.2
+module load r/4.5.3
 
-Rscript multicore.R
+Rscript mclapply.R
 ```
 
 ---
 
-## Parallel with the futureverse
+## The futureverse packages
 
 - A unified parallelization framework for R
-- Abstracts away the technical aspects of parallel processing
-- Packages include `future`, `future.apply`, `furrr`, etc.
-- Set up parallel resources with `plan()`
-  - Single node: `plan(multicore)`
-  - Multiple nodes: `plan(cluster)`
-- Various functions for parallel computing
-  - `future_lapply()`
-  - `future_map()`
-- [Futureverse website](https://www.futureverse.org/)
+- Makes parallel programming easier by abstracting away technical details
+- Enhances base `parallel` package
+- **future** &ndash; abstraction for a value that may be available in the future
+  - Programming construct for synchronizing program execution
+  - Designed for concurrent and asynchronous evaluation of code
+- Various packages
+  - `parallelly` &mdash; for utility functions
+  - `future` &mdash; for setting up parallel workers
+  - `future.apply` &mdash; for parallel versions of apply functions
+  - `furrr` &mdash; for parallel versions of mapping functions
+  - `futurize` &mdash; for one magic function
+- [Futureverse website](https://www.futureverse.org)
 
 ---
 
-## future plan(multicore) example
+## Setting up parallel workers
+
+- `library(future)`
+- Set up parallel workers with `plan()`
+- `plan(sequential)`
+  - Not parallel; uses 1 core
+- `plan(multicore)`
+  - Single node
+  - Works on Linux or macOS; uses 1 core on Windows
+  - Not supported within RStudio or other GUIs
+- `plan(multisession)`
+  - Single node
+  - Works on Linux, macOS, and Windows
+- `plan(cluster)`
+  - Single node or multiple nodes
+  - Works on Linux, macOS, and Windows
+- Then use functions for parallel processing (e.g., `future_lapply()`)
+
+---
+
+## future plan(multisession) example
 
 ```r
-# R future multicore test (bootstrapping a GLM)
+# R future multisession test (bootstrapping a GLM)
 
 library(parallelly)
 library(future)
 library(future.apply)
-
-trials <- 100000
-cores <- as.numeric(Sys.getenv("SLURM_CPUS_PER_TASK"))
 
 data <- iris[iris$Species != "setosa", c(1, 5)]
 data$Species <- factor(data$Species)
@@ -421,14 +462,21 @@ model <- function(i, samp = data) {
   coef(results)
 }
 
-plan(multicore, workers = cores)
+trials <- 100000
+cores <- availableCores()
 
-coefs <- future_lapply(1:trials, model, future.seed = TRUE)
+# Start with 1 core
+plan(sequential)
+system.time(future_lapply(1:trials, model, future.seed = TRUE))
+
+# Then repeat with multiple cores
+plan(multisession, workers = cores)
+system.time(future_lapply(1:trials, model, future.seed = TRUE))
 ```
 
 ---
 
-## Job script for future plan(multicore) example
+## Slurm job script for plan(multisession) example
 
 ```bash
 #!/bin/bash
@@ -442,9 +490,9 @@ coefs <- future_lapply(1:trials, model, future.seed = TRUE)
 #SBATCH --time=5:00
 
 module purge
-module load rstats/4.5.2
+module load r/4.5.3
 
-Rscript future-multicore.R
+Rscript future-multisession.R
 ```
 
 ---
@@ -458,8 +506,6 @@ library(parallelly)
 library(future)
 library(future.apply)
 
-trials <- 100000
-
 data <- iris[iris$Species != "setosa", c(1, 5)]
 data$Species <- factor(data$Species)
 
@@ -469,15 +515,22 @@ model <- function(i, samp = data) {
   coef(results)
 }
 
-cl <- makeClusterPSOCK(availableWorkers(), revtunnel = FALSE)
-plan(cluster, workers = cl)
+trials <- 100000
+cores <- availableWorkers()
 
-coefs <- future_lapply(1:trials, model, future.seed = TRUE)
+cl <- makeClusterPSOCK(cores, revtunnel = FALSE,
+                       rscript = c("/apps/generic/apptainer/1.4.5/bin/apptainer",
+                                   "exec",
+                                   Sys.getenv("R_CONTAINER"),
+                                   "Rscript"))
+
+plan(cluster, workers = cl)
+system.time(future_lapply(1:trials, model, future.seed = TRUE))
 ```
 
 ---
 
-## Job script for future plan(cluster) example
+## Slurm job script for plan(cluster) example
 
 ```bash
 #!/bin/bash
@@ -486,24 +539,31 @@ coefs <- future_lapply(1:trials, model, future.seed = TRUE)
 #SBATCH --partition=main
 #SBATCH --nodes=2
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-task=4
 #SBATCH --mem=2G
 #SBATCH --time=5:00
 
 module purge
-module load rstats/4.5.2
+module load r/4.5.3
 
 Rscript future-cluster.R
 ```
 
 ---
 
-## Other relevant packages
+## Nested parallelism
 
-- `foreach` for parallel for loops
-- `BiocParallel` for parallel processing with Bioconductor objects
-- `Rmpi` for parallel processing using MPI
-- `pbdMPI` for parallel processing using MPI
+- Multiple levels of parallelism
+  - Level 1 - iterations running in parallel
+  - Level 2 - each iteration is parallelized in some way
+- May cause resource contention and degrade performance
+  - So make sure you have enough CPU cores
+  - Or remove nested parallelism
+- For example, parallel iteration of multi-threaded BLAS or `data.table` operations
+    - 8 cores available, but running 8 tasks in parallel where each task uses 8 threads
+    - So restrict to 1 BLAS or `data.table` thread
+    - Or run tasks in sequence instead
+    - Or get 64 CPU cores
 
 ---
 
@@ -534,7 +594,7 @@ Rscript future-cluster.R
 
 ---
 
-## Slurm job array example
+## Slurm job script for job array example
 
 ```bash
 #!/bin/bash
@@ -549,7 +609,7 @@ Rscript future-cluster.R
 #SBATCH --array=1-3
 
 module purge
-module load rstats/4.5.2
+module load r/4.5.3
 
 echo "Task ID: $SLURM_ARRAY_TASK_ID"
 
@@ -590,29 +650,21 @@ summary(data)
 # Load modules
 module purge
 module load hypershell/2.7.2
-module load rstats/4.5.2
+module load r/4.5.3
 ```
 
 ---
 
-## Using GPUs
+## Interfacing to a compiled program
 
-- No well-maintained R packages for using GPUs
-- May not be worth using GPUs (compared to multi-threaded BLAS)
-- Mostly useful for machine learning tasks
-  - `torch`
-  - `keras`
-  - `tensorflow`
-
----
-
-## Interfacing to a compiled language
-
+- Primarily for package developers
 - If your R code is not fast enough, consider rewriting it in a compiled language
-- R has a native interface for C and Fortran programs
-- Use `Rcpp` family of packages as interface for C++ programs
-- Could also interface to Julia via `JuliaCall`
 - Which language to use depends on the data types, computations, etc.
+- R has a native interface for C and Fortran programs
+- Interface packages for different languages
+  - C++ &mdash; `Rcpp` family of packages
+  - Rust &mdash; `rextendr`
+  - Julia &mdash; `JuliaCall`
 
 ---
 
@@ -681,11 +733,12 @@ tracemem(b)
   - Smaller object size
   - Faster data I/O and data operations
   - For on-disk formats, performance limited by read/write speeds
-- For data frames
-  - `data.table` package for modify-in-place operations
-  - `arrow` package for on-disk binary format (columnar format)
-  - `fst` package for on-disk binary format (efficient reading and subsetting)
-- For other data structures
+- Packages for data frames
+  - `data.table` for modify-in-place operations
+  - `duckdb` for on-disk database format
+  - `arrow` for on-disk binary format (columnar format)
+  - `fst` for on-disk binary format (efficient reading and subsetting)
+- Packages for other data structures
   - `bigmemory` for big matrices
   - `bigstatsr` for on-disk big matrices
   - `pbdDMAT` for big matrices in MPI jobs
@@ -706,10 +759,11 @@ class: center, middle, inverse
 ## Fast data input/output (I/O)
 
 - Base R functions for I/O are relatively slow
-- For faster I/O (based on format)
+- Packages for faster I/O (based on format)
   - `data.table` for tabular data
   - `vroom` for tabular data
   - `readr` for tabular data
+  - `duckdb` for on-disk database format
   - `arrow` for binary Arrow files
   - `fst` for binary fst files (data frames)
   - `qs` for binary qs files
@@ -721,7 +775,7 @@ class: center, middle, inverse
 ## Fast data processing
 
 - Base R and `tidyverse` packages are relatively slow
-- For faster data processing
+- Packages for faster data processing
   - `data.table` in general
   - `dtplyr` for drop-in `dplyr` substitute (`data.table` backend)
   - `tidytable` for tidy data manipulation (`data.table` backend)
@@ -781,6 +835,7 @@ class: center, middle, inverse
 
 ```r
 library(proftools)
+library(boot)
 
 srcfile <- system.file("samples", "bootlmEx.R", package = "proftools")
 system(paste("cat", srcfile))
@@ -795,29 +850,22 @@ srcSummary(pd)
 ## Benchmarking R code
 
 - Base R: `system.time()`
-- `bench` (more features)
+- `bench` for more features
 - `microbenchmark` for short-running code
-- `benchmarkme` for benchmarking hardware
 
 ---
 
-## system.time() examples
+## bench::mark() example
 
 ```r
-data <- data.frame(x = rexp(200000000), y = rexp(200000000))
+data <- data.frame(x = rexp(100000000), y = rexp(100000000))
 
-system.time(data[data$x > 1, ])
-system.time(data[which(data$x > 1), ])
-system.time(subset(data, x > 1))
-
-mat <- matrix(rexp(200000000), ncol = 800000)
-data <- as.data.frame(mat)
-
-system.time(for (i in seq_along(data)) mean(data[[i]]))
-system.time(apply(data, 2, FUN = mean))
-system.time(sapply(data, mean))
-system.time(colMeans(data))
-system.time(colMeans(mat))
+bench::mark(
+    data[data$x > 1, ],
+    data[which(data$x > 1), ],
+    subset(data, x > 1),
+    iterations = 5
+)
 ```
 
 ---
