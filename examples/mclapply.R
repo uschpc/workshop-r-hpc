@@ -1,9 +1,6 @@
-# R multicore test (bootstrapping a GLM)
+# R mclapply() test (bootstrapping a GLM)
 
 library(parallel)
-
-trials <- 100000
-cores <- as.numeric(Sys.getenv("SLURM_CPUS_PER_TASK"))
 
 data <- iris[iris$Species != "setosa", c(1, 5)]
 data$Species <- factor(data$Species)
@@ -13,5 +10,8 @@ model <- function(i, samp = data) {
   results <- glm(samp[ind, 2] ~ samp[ind, 1], family = binomial(link = "logit"))
   coef(results)
 }
+
+trials <- 100000
+cores <- as.numeric(Sys.getenv("SLURM_CPUS_PER_TASK"))
 
 coefs <- mclapply(1:trials, model, mc.cores = cores)

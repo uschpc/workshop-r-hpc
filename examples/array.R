@@ -2,7 +2,7 @@
 
 library(data.table)
 
-files <- list.files("./data", full.names = TRUE)
+files <- list.files("data", full.names = TRUE)
 task <- as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 file <- files[task]
 file

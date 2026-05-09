@@ -1,6 +1,8 @@
-# R serial test (bootstrapping a GLM)
+# R future multisession test (bootstrapping a GLM)
 
-trials <- 100000
+library(parallelly)
+library(future)
+library(future.apply)
 
 data <- iris[iris$Species != "setosa", c(1, 5)]
 data$Species <- factor(data$Species)
@@ -11,4 +13,9 @@ model <- function(i, samp = data) {
   coef(results)
 }
 
-coefs <- lapply(1:trials, model)
+trials <- 100000
+cores <- availableCores()
+
+plan(multisession, workers = cores)
+
+coefs <- future_lapply(1:trials, model, future.seed = TRUE)

@@ -4,8 +4,6 @@ library(parallelly)
 library(future)
 library(future.apply)
 
-trials <- 100000
-
 data <- iris[iris$Species != "setosa", c(1, 5)]
 data$Species <- factor(data$Species)
 
@@ -15,7 +13,16 @@ model <- function(i, samp = data) {
   coef(results)
 }
 
-cl <- makeClusterPSOCK(availableWorkers(), revtunnel = FALSE)
+trials <- 100000
+cores <- availableWorkers()
+
+cl <- makeClusterPSOCK(cores,
+                       revtunnel = FALSE,
+                       rscript = c("/apps/generic/apptainer/1.4.5/bin/apptainer",
+                                   "exec",
+                                   Sys.getenv("R_CONTAINER"),
+                                   "Rscript"))
+
 plan(cluster, workers = cl)
 
 coefs <- future_lapply(1:trials, model, future.seed = TRUE)

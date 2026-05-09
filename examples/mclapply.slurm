@@ -9,6 +9,6 @@
 #SBATCH --time=5:00
 
 module purge
-module load rstats/4.5.1
+module load r/4.5.3
 
-Rscript multicore.R
+Rscript mclapply.R
