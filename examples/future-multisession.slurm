@@ -11,4 +11,4 @@
 module purge
 module load r/4.5.3
 
-Rscript future-multicore.R
+Rscript future-multisession.R
