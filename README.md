@@ -8,13 +8,13 @@ Slides: https://uschpc.github.io/workshop-r-hpc/
 
 Example scripts: [examples](examples)
 
-Prerequisites:
+## Prerequisites
 
 - Basic proficiency in R programming
-- Basic proficiency in shell commands and scripting
-- Basic proficiency in Slurm jobs
+- Basic proficiency in running shell commands
+- Basic proficiency in running Slurm jobs
 
-Learning objectives:
+## Learning objectives
 
 - Explain HPC concepts
 - Develop and run parallel R code
