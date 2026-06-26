@@ -17,7 +17,7 @@ class: center, top, title-slide
 
 ### Center for Advanced Research Computing <br> University of Southern California <br>
 
-#### Last updated on 2026-05-08
+#### Last updated on 2026-06-26
 
 ---
 
@@ -150,7 +150,7 @@ class: center, middle, inverse
 ```bash
 # Load R module
 module purge
-module load r/4.5.3
+module load r/4.6.0
 
 # Interactive mode
 R
@@ -173,7 +173,7 @@ salloc --cpus-per-task=8 --time=2:00:00
 
 # Load and start R
 module purge
-module load r/4.5.3
+module load r/4.6.0
 R
 ```
 
@@ -268,10 +268,10 @@ Compare run time with varying threads and data sizes
 ```r
 library(RhpcBLASctl)
 
-omp_get_max_threads()
+blas_get_num_procs()
 
 # Start with 1 thread, then repeat with 8 threads
-omp_set_num_threads(1)
+blas_set_num_threads(1)
 
 # Small data
 mat <- matrix(rexp(1000000), ncol = 1000)
@@ -399,7 +399,7 @@ system.time(mclapply(1:trials, model, mc.cores = cores))
 #SBATCH --time=5:00
 
 module purge
-module load r/4.5.3
+module load r/4.6.0
 
 Rscript mclapply.R
 ```
@@ -490,7 +490,7 @@ system.time(future_lapply(1:trials, model, future.seed = TRUE))
 #SBATCH --time=5:00
 
 module purge
-module load r/4.5.3
+module load r/4.6.0
 
 Rscript future-multisession.R
 ```
@@ -519,10 +519,10 @@ trials <- 100000
 cores <- availableWorkers()
 
 cl <- makeClusterPSOCK(cores, revtunnel = FALSE,
-                       rscript = c("/apps/generic/apptainer/1.4.5/bin/apptainer",
-                                   "exec",
-                                   Sys.getenv("R_CONTAINER"),
-                                   "Rscript"))
+                       rscript = c("/apps/generic/apptainer/1.4.5/bin/apptainer", "exec",
+                                   "--bind", "/scratch2,/project2", Sys.getenv("R_CONTAINER"),
+                                   "Rscript"),
+                       rscript_libs = .libPaths())
 
 plan(cluster, workers = cl)
 system.time(future_lapply(1:trials, model, future.seed = TRUE))
@@ -544,7 +544,7 @@ system.time(future_lapply(1:trials, model, future.seed = TRUE))
 #SBATCH --time=5:00
 
 module purge
-module load r/4.5.3
+module load r/4.6.0
 
 Rscript future-cluster.R
 ```
@@ -609,7 +609,7 @@ Rscript future-cluster.R
 #SBATCH --array=1-3
 
 module purge
-module load r/4.5.3
+module load r/4.6.0
 
 echo "Task ID: $SLURM_ARRAY_TASK_ID"
 
@@ -650,7 +650,7 @@ summary(data)
 # Load modules
 module purge
 module load hypershell/2.7.2
-module load r/4.5.3
+module load r/4.6.0
 ```
 
 ---
